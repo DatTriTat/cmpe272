@@ -9,36 +9,20 @@ import fetchResumePipeline from "../utils/fetchResumePipeline";
 export default function UploadResume() {
   const [isUploaded, setIsUploaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedCareer, setSelectedCareer] = useState("Frontend Developer");
+  const [data, setData] = useState([]); // State to hold the response from the pipeline
+
+  const [selectedCareer, setSelectedCareer] = useState(data[0]); // Initialize with the first career from the pipeline response
   const [stage, setStage] = useState(1);
-  const [data, setData] = useState(null); // State to hold the response from the pipeline
-  const careers = [
-    {
-      title: "Frontend Developer",
-      description: "Responsible for implementing visual elements that users see and interact with in a web application.",
-      skills: ["React.js", "HTML/CSS", "JavaScript", "Responsive Design"]
-    },
-    {
-      title: "Backend Developer",
-      description: "Focuses on server-side logic, database management, and API integration.",
-      skills: ["Node.js", "Express", "MongoDB", "REST APIs"]
-    },
-    {
-      title: "Data Analyst",
-      description: "Interprets data and turns it into information that can offer ways to improve a business.",
-      skills: ["SQL", "Excel", "Python", "Data Visualization"]
-    }
-  ];
+
 
   const handleUpload = async () => {
     console.log ("Uploading resume...");
     setIsLoading(true);
     try {
-      const resumeText = "Example resume text to send to pipeline"; 
-      const data = await fetchResumePipeline(resumeText);
-      setResponse(data)
-      console.log("Pipeline response:", response);
-
+      const data = await fetchResumePipeline("Python Machine Learning");
+      setData(data)
+      console.log("Pipeline response:", data);
+      setSelectedCareer(data[0].title);
       setIsUploaded(true);
     } catch (error) {
       console.error("Pipeline error:", error);
@@ -73,7 +57,7 @@ export default function UploadResume() {
         </div>
       ) : stage === 1 ? (
         <StageOne
-          careers={careers}
+          careers={data}
           selected={selectedCareer}
           setSelected={setSelectedCareer}
           onNext={goToStepTwo}
