@@ -8,6 +8,8 @@ import Footer from "./components/Footer";
 import UploadResume from "./pages/UploadResume";
 import ProtectedRoute from "./context/ProtectedRoute";
 import PublicRoute from "./context/PublicRoute";
+import CareerChat from './pages/CareerChat';
+
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
@@ -42,6 +44,10 @@ export default function App() {
             }
           />
         </Routes>
+        <Route path="/career-chat" 
+                element={
+                  <CareerChat />
+                } />
       </main>
       <Footer />
     </div>
