@@ -8,7 +8,7 @@ import Footer from "./components/Footer";
 import UploadResume from "./pages/UploadResume";
 import ProtectedRoute from "./context/ProtectedRoute";
 import PublicRoute from "./context/PublicRoute";
-import CareerChat from './pages/CareerChat';
+import CareerChat from "./pages/CareerChat";
 
 export default function App() {
   return (
@@ -43,11 +43,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/career-chat" element={<CareerChat />} />
         </Routes>
-        <Route path="/career-chat" 
-                element={
-                  <CareerChat />
-                } />
       </main>
       <Footer />
     </div>
