@@ -9,7 +9,7 @@ const upload = multer({ dest: "uploads/" });
 export default (collection) => {
   const router = express.Router();
 
-  router.post("/analyze-career"/*, checkAuth, checkRole("user")*/, upload.single("file"), (req, res) => analyzeCareer(req, res, collection));
+  router.post("/analyze-career", checkAuth, checkRole("user"), upload.single("file"), (req, res) => analyzeCareer(req, res, collection));
 
   router.post("/ingest", (req, res) => ingestSkills(req, res, collection));
 

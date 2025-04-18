@@ -3,6 +3,6 @@ import { verifyLogin } from "../controllers/authController.js";
 
 const router = express.Router();
 
-router.post("/verify", verifyLogin); // POST /api/auth/verify
+router.post("/verify", verifyLogin);
 
 export default router;

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const CareerResultSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // 🔗 Liên kết
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, 
   inputQuery: { type: String, required: true },
   matchedJobs: { type: Array, default: [] },
   gptSuggestions: { type: Array, default: [] },

@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import loadingImage from "../assets/loading.gif"; 
-import StageOne from "../components/StageOne"; // Import the StageOne component
-import StageTwo from "../components/StageTwo"; // Import the StageTwo component
-import  FinalStage from "../components/FinalStage"; // Import the FinalStage component
+import StageOne from "../components/StageOne"; 
+import StageTwo from "../components/StageTwo"; 
+import  FinalStage from "../components/FinalStage"; 
 import Button from "../components/Button";
 import fetchResumePipeline from "../utils/fetchResumePipeline";
-
-export default function UploadResume() {
+import { useAuth } from "../context/AuthContext";export default function UploadResume() {
   const [isUploaded, setIsUploaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState([]); // State to hold the response from the pipeline
+  const [data, setData] = useState([]);
 
-  const [selectedCareer, setSelectedCareer] = useState(data[0]); // Initialize with the first career from the pipeline response
+  const [selectedCareer, setSelectedCareer] = useState(data[0]);
   const [stage, setStage] = useState(1);
-  const [selectedFile, setSelectedFile] = useState(null); // State to hold the selected file
-
+  const [selectedFile, setSelectedFile] = useState(null); 
+  const { user } = useAuth();
   const handleUpload = async () => {
     if (!selectedFile) {
       alert("Please choose a file!");
@@ -23,10 +22,10 @@ export default function UploadResume() {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-
+    console.log ("User token:", user);
     setIsLoading(true);
     try {
-      const response = await fetchResumePipeline(formData);
+      const response = await fetchResumePipeline(formData, user.token);
       setData(response);
       setSelectedCareer(response[0]?.title);
       setIsUploaded(true);

@@ -71,6 +71,14 @@ export async function analyzeCareer(req, res, collection) {
       .map((s) => s.name.trim().toLowerCase())
       .sort()
       .join(", ");
+    const cleanEducation =
+      education
+        ?.map((e) => `${e.accreditation} at ${e.institution}`)
+        .join(", ") || "None";
+    const cleanExperience =
+      workExperience
+        ?.map((e) => `${e.jobTitle} at ${e.organization}`)
+        .join(", ") || "None";
 
     const queryEmbedding = await createEmbedding(query);
 
@@ -82,7 +90,7 @@ export async function analyzeCareer(req, res, collection) {
             path: "embedding",
             queryVector: queryEmbedding,
             numCandidates: 100,
-            limit: 5,
+            limit: 3,
           },
         },
         {
@@ -93,47 +101,62 @@ export async function analyzeCareer(req, res, collection) {
         },
       ])
       .toArray();
-
     const prompt = `
       You are an expert career assistant and resume analyzer.
-  
+      
       You will be given:
-      1. Resume content (parsed from uploaded file)
-      2. Related information from a job vector database (job descriptions, responsibilities, required skills, company expectations, etc.)
-  
-      Your task is to analyze both sources and return **a list of 1 to 3 best-fit career suggestions** in **valid JSON format**.
-  
+      1. A list of skills and summary from the user's resume.
+      2. 1–3 matched jobs with descriptions and requirements from a vector database.
+      
+      Your task:
+      Return a list of 1 to 3 career suggestions in **valid JSON format**.
+      
+      Each object should follow this format:
       [
         {
           "title": string,
-          "description": string,
-          "skills": string[],
-          "certification": string[]
+          "description": string,      // A professional summary of the role and candidate fit
+          "skills": string[],         // Include all related skills (skills_text + skills_required)
+          "certification": string[],  // Common certifications for this role
+          "education": string,        // Specific education field, e.g., "Bachelor's in Data Science"
+          "why_fit": string           // Why this candidate is a good fit (based on resume & DB)
         }
       ]
-  
-      Guidelines for the "description" field:
-      - Write in professional tone (3rd person)
-      - Focus on candidate’s potential, experience, and strengths
-      - Combine resume experience + matched job expectations
-      - Avoid generic phrases; tailor it based on actual resume content and roles from DB
-  
-      All fields must be filled. Do not leave any array empty.
-      If a field like "certification" has no direct match, you must suggest at least one relevant or common certification that could help the candidate grow in this role.
-  
-      No extra commentary, explanation, or markdown.
-      Only return a valid JSON object. No text before or after.
-  
-      From User's Skills :
+      
+      Guidelines:
+      - "description": professional 3rd-person tone, combine resume & job requirements
+      - "why_fit": summarize matching experience and skills
+      - Fill all fields. Do not leave arrays empty.
+      - If a certification is not found, suggest at least one relevant one.
+      - **Return JSON only**. No comments or markdown.
+      
+      From User:
       """
-      ${query}
+      Summary: ${summary}
+      Skills: ${query}
+      Education: ${education
+        .map((e) => `${e.institution} (${e.accreditation})`)
+        .join(", ")}
+      Experience: ${workExperience
+        .map((e) => `${e.jobTitle} at ${e.organization}`)
+        .join(", ")}
       """
-      Related Research from Job Database:
+      
+      Matched Jobs from Vector DB:
       """
-      ${JSON.stringify(vectorSearchResults, null, 2)}
+      ${vectorSearchResults
+        .map((job) => {
+          return `
+      Title: ${job.job_position_name}
+      Skills Text: ${job.skills_text}
+      Skills Required: ${job.skills_required}
+      Education: ${job.educationaL_requirements}
+      Responsibilities: ${job.responsibilities}
+      `;
+        })
+        .join("\n---\n")}
       """
       `;
-
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
@@ -146,6 +169,7 @@ export async function analyzeCareer(req, res, collection) {
     }
 
     const gptResult = JSON.parse(content);
+    // Add education to the result
     /*
     let user = await User.findOne({ uid: req.user.uid });
     if (!user) {
@@ -162,6 +186,27 @@ export async function analyzeCareer(req, res, collection) {
       gptSuggestions: gptResult,
     });*/
 
+    const normalize = (s) =>
+        typeof s === "string"
+          ? s.toLowerCase().replace(/\(.*?\)/g, "").replace(/\s+/g, " ").trim()
+          : "";
+      
+      const currentSet = new Set(skills.map((s) => normalize(s.name)));
+      
+      const updatedCareers = gptResult.map((career) => {
+        const careerSkills = (career.skills || []).map(normalize);
+        const matchedSkills = careerSkills.filter((s) => currentSet.has(s));
+        const missingSkills = careerSkills.filter((s) => !currentSet.has(s));
+      
+        return {
+          ...career,
+          matchedSkills,
+          missingSkills,
+        };
+      });
+      console.log   ("Updated Careers:", currentSet);      
+
+              console.log   ("Updated Careers:", updatedCareers);      
     res.json(gptResult);
   } catch (error) {
     res.status(500).json({ error: error.message });

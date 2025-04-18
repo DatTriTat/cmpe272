@@ -5,7 +5,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   name: { type: String },
   role: { type: String, default: "user" },
-  provider: { type: String }, // ✅ track login method
+  provider: { type: String }, 
 });
 
 export default mongoose.model("User", UserSchema);

@@ -1,4 +1,3 @@
-// firebase/firebaseAdmin.js
 import admin from "firebase-admin";
 import fs from "fs";
 import dotenv from "dotenv";
