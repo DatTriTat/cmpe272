@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import loadingImage from "../assets/loading.gif"; 
-import StageOne from "../components/StageOne"; 
-import StageTwo from "../components/StageTwo"; 
-import  FinalStage from "../components/FinalStage"; 
+import loadingImage from "../assets/loading.gif";
+import StageOne from "../components/StageOne";
+import StageTwo from "../components/StageTwo";
+import FinalStage from "../components/FinalStage";
 import Button from "../components/Button";
 import fetchResumePipeline from "../utils/fetchResumePipeline";
-import { useAuth } from "../context/AuthContext";export default function UploadResume() {
+import { useAuth } from "../context/AuthContext";
+export default function UploadResume() {
   const [isUploaded, setIsUploaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState([]);
 
-  const [selectedCareer, setSelectedCareer] = useState(data[0]);
+  const [selectedCareer, setSelectedCareer] = useState(null);
   const [stage, setStage] = useState(1);
-  const [selectedFile, setSelectedFile] = useState(null); 
+  const [selectedFile, setSelectedFile] = useState(null);
   const { user } = useAuth();
   const handleUpload = async () => {
     if (!selectedFile) {
@@ -22,12 +23,12 @@ import { useAuth } from "../context/AuthContext";export default function UploadR
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-    console.log ("User token:", user);
+    console.log("User token:", user);
     setIsLoading(true);
     try {
       const response = await fetchResumePipeline(formData, user.token);
       setData(response);
-      setSelectedCareer(response[0]?.title);
+      setSelectedCareer(response[0]);
       setIsUploaded(true);
     } catch (error) {
       console.error("Pipeline error:", error);
@@ -35,7 +36,6 @@ import { useAuth } from "../context/AuthContext";export default function UploadR
       setIsLoading(false);
     }
   };
-  
 
   const goToStepTwo = () => setStage(2);
   const goToStepOne = () => setStage(1);
@@ -57,10 +57,12 @@ import { useAuth } from "../context/AuthContext";export default function UploadR
             onChange={(e) => setSelectedFile(e.target.files[0])}
             className="mb-4 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           />
-          <Button onClick={handleUpload} className="w-full"> 
+          <Button onClick={handleUpload} className="w-full">
             Upload Resume
           </Button>
-          <p className="text-gray-500 text-sm mt-2">Supported formats: PDF, DOC, DOCX</p>
+          <p className="text-gray-500 text-sm mt-2">
+            Supported formats: PDF, DOC, DOCX
+          </p>
         </div>
       ) : stage === 1 ? (
         <StageOne

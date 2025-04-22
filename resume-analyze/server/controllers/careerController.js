@@ -187,27 +187,28 @@ export async function analyzeCareer(req, res, collection) {
     });*/
 
     const normalize = (s) =>
-        typeof s === "string"
-          ? s.toLowerCase().replace(/\(.*?\)/g, "").replace(/\s+/g, " ").trim()
-          : "";
-      
-      const currentSet = new Set(skills.map((s) => normalize(s.name)));
-      
-      const updatedCareers = gptResult.map((career) => {
-        const careerSkills = (career.skills || []).map(normalize);
-        const matchedSkills = careerSkills.filter((s) => currentSet.has(s));
-        const missingSkills = careerSkills.filter((s) => !currentSet.has(s));
-      
-        return {
-          ...career,
-          matchedSkills,
-          missingSkills,
-        };
-      });
-      console.log   ("Updated Careers:", currentSet);      
+      typeof s === "string"
+        ? s
+            .toLowerCase()
+            .replace(/\(.*?\)/g, "")
+            .replace(/\s+/g, " ")
+            .trim()
+        : "";
 
-              console.log   ("Updated Careers:", updatedCareers);      
-    res.json(gptResult);
+    const currentSet = new Set(skills.map((s) => normalize(s.name)));
+
+    const updatedCareers = gptResult.map((career) => {
+      const careerSkills = (career.skills || []).map(normalize);
+      const matchedSkills = careerSkills.filter((s) => currentSet.has(s));
+      const missingSkills = careerSkills.filter((s) => !currentSet.has(s));
+
+      return {
+        ...career,
+        matchedSkills,
+        missingSkills,
+      };
+    });
+    res.json(updatedCareers);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

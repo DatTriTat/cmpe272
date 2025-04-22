@@ -214,11 +214,13 @@ const mongoClient = new MongoClient(process.env.MONGODB_URI);
 await mongoClient.connect();
 const db = mongoClient.db("test");
 const skillsCollection = db.collection("skills");
+const cachedCoursesCollection = db.collection("cached_courses"); 
+
 console.log("MongoClient connected to vector DB");
 
 // API Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/career", careerRoutes(skillsCollection));
+app.use("/api/career", careerRoutes(skillsCollection, cachedCoursesCollection));
 
 // Health check
 app.get("/", (req, res) => {
