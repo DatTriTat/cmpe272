@@ -20,7 +20,7 @@ export async function createEmbedding(text) {
 
 export async function ingestSkills(req, res, collection) {
   const results = [];
-  fs.createReadStream("./uploads/resume_part_1.csv")
+  fs.createReadStream("./uploads/Generated_Career_Database_final.csv")
     .pipe(csv())
     .on("data", (data) => {
       if (data.skills_text && data.skills_text.trim() !== "") {
