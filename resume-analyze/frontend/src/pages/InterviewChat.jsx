@@ -15,7 +15,7 @@ const InterviewChat = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/interview', {
+      const response = await fetch('http://localhost:3000/api/interview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ job_title: jobTitle, user_response: input })

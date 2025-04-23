@@ -1,7 +1,8 @@
-const express = require('express');
-const { interviewSession } = require('../controllers/interviewController');
-const router = express.Router();
+// ✅ New (ESM compatible)
+import express from 'express';
+import { interviewSession } from '../controllers/interviewController.js';
 
+const router = express.Router();
 router.post('/interview', interviewSession);
 
-module.exports = router;
+export default router;

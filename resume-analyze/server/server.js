@@ -198,11 +198,19 @@ import { MongoClient } from "mongodb";
 
 import authRoutes from "./routes/authRoutes.js";
 import careerRoutes from "./routes/careerRoutes.js";
+import interviewRoutes from './routes/interviewRoutes.js';
 
 dotenv.config();
 
+const corsOptions = {
+  origin: 'http://localhost:5174',  // ✅ Match your frontend port
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
+};
+
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Mongoose connection (for User and CareerResult)
@@ -221,8 +229,7 @@ console.log("MongoClient connected to vector DB");
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/career", careerRoutes(skillsCollection, cachedCoursesCollection));
-const interviewRoutes = require('./routes/interviewRoutes');
-app.use('/api', interviewRoutes);
+app.use("/api", interviewRoutes);
 
 // Health check
 app.get("/", (req, res) => {
