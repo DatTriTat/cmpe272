@@ -9,6 +9,7 @@ import UploadResume from "./pages/UploadResume";
 import ProtectedRoute from "./context/ProtectedRoute";
 import PublicRoute from "./context/PublicRoute";
 import CareerChat from "./pages/CareerChat";
+import InterviewChat from './pages/InterviewChat';
 
 export default function App() {
   return (
@@ -34,7 +35,8 @@ export default function App() {
               </PublicRoute>
             }
           />
-
+          
+          <Route path="/interview-chat" element={<InterviewChat />} />
           <Route
             path="/upload"
             element={

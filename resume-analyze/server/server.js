@@ -221,6 +221,8 @@ console.log("MongoClient connected to vector DB");
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/career", careerRoutes(skillsCollection, cachedCoursesCollection));
+const interviewRoutes = require('./routes/interviewRoutes');
+app.use('/api', interviewRoutes);
 
 // Health check
 app.get("/", (req, res) => {
