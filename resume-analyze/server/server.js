@@ -203,7 +203,7 @@ import interviewRoutes from './routes/interviewRoutes.js';
 dotenv.config();
 
 const corsOptions = {
-  origin: 'http://localhost:5174',  // ✅ Match your frontend port
+  origin: '*',  // ✅ Match your frontend port
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type'],
   credentials: true
