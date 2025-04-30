@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.chat-bubble {
+  position: relative;
+  padding: 1rem;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  max-width: 80%;
+}
+
+.chat-bubble-user {
+  background-color: #0072f5;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 0;
+}
+
+.chat-bubble-ai {
+  background-color: #f1f3f5;
+  color: #11181c;
+  margin-right: auto;
+  border-bottom-left-radius: 0;
+}

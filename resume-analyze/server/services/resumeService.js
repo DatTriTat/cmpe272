@@ -1,0 +1,127 @@
+import fs from "fs";
+import { OpenAI } from "openai";
+import { parseResume } from "../utils/parseResume.js";
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+export const analyzeResumeService = async (file) => {
+  try {
+    const data = await parseResume(file);
+
+    const prompt = `
+    You are a resume evaluation assistant.
+    
+    Given the following parsed resume (extracted using Affinda), return a JSON object with all of the following:
+    
+    {
+      "overallScore": number (0-100),
+      "formatScore": number (0-100),
+      "contentScore": number (0-100),
+      "skillsScore": number (0-100),
+      "atsScore": number (0-100),
+      "grammarScore": number (0-100),
+    
+      "keyFindings": {
+        "strengths": [string],
+        "areasToImprove": [string],
+        "criticalIssues": [string]
+      },
+    
+      "improvementSuggestions": {
+        "content": [string],
+        "format": [string],
+        "atsOptimization": [string]
+      },
+    
+      "atsCompatibilityDetails": {
+        "score": number (0-100),
+        "issues": [
+          {
+            "title": string,
+            "description": string,
+            "fix": string
+          }
+        ]
+      }
+    }
+    
+    IMPORTANT:
+    - Only return a valid JSON object.
+    - Do not include any explanation or markdown.
+    - Do not wrap the response in triple backticks.
+    
+    Resume:
+    ${JSON.stringify(data)}
+    `;
+
+    const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.4,
+    });
+
+    let rawContent = completion.choices[0].message.content.trim();
+
+    if (rawContent.startsWith("```")) {
+      rawContent = rawContent
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+    }
+
+    const analysisResult = JSON.parse(rawContent);
+
+    return analysisResult;
+  } finally {
+    fs.unlink(file.path, (err) => {
+      if (err) console.error("Failed to delete temp file:", err);
+    });
+  }
+};
+
+export async function mapResumeToProfile(file) {
+  const data = await parseResume(file);
+
+  return {
+    fullName:
+      [data.name?.first, data.name?.middle, data.name?.last]
+        .filter(Boolean)
+        .join(" ") || "",
+    jobTitle: data.profession || "",
+    phone: data.phoneNumbers?.[0] || "",
+    location: data.location?.text || "",
+    summary: data.summary || "",
+    objective: data.objective || "",
+    desiredRole: data.jobTitle || "",
+    desiredSalary: data.desiredSalary || "",
+    workType: data.workType || "",
+    availability: data.availability || "",
+
+    skills: (data.skills || []).map((s) => ({
+      name: s.name,
+      level: s.level || "Intermediate",
+    })),
+
+    experiences: (data.workExperience || []).map((exp) => ({
+      company: exp.organization,
+      position: exp.jobTitle,
+      location: exp.location?.text || "",
+      startDate: exp.dates?.startDate || "",
+      endDate: exp.dates?.endDate || "",
+      current: exp.dates?.endDate === null,
+      description: exp.jobDescription || "",
+    })),
+
+    educations: (data.education || []).map((edu) => ({
+      school: edu.institution,
+      degree: edu.accreditation?.education || "",
+      field: edu.accreditation?.inputStr || "",
+      location: edu.location?.text || "",
+      startDate: edu.dates?.startDate || edu.dates?.completionDate || "",
+      endDate: edu.dates?.completionDate || "",
+      current: edu.dates?.isCurrent || false,
+    })),
+  };
+}

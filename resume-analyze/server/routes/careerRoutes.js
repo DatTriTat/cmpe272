@@ -2,26 +2,35 @@ import express from "express";
 import multer from "multer";
 import { checkAuth } from "../middlewares/authMiddleware.js";
 import { checkRole } from "../middlewares/roleMiddleware.js";
+import { getCoursesForSkills } from "../controllers/courseController.js";
 import {
+  analyzeResumeController,
   analyzeCareer,
   ingestSkills,
-} from "../controllers/careerController.js";
-import { getCoursesForSkills } from "../controllers/courseController.js";
-
+} from "../controllers/analyzeResumeController.js";
 const upload = multer({ dest: "uploads/" });
 
 export default (skillsCollection, cachedCoursesCollection) => {
   const router = express.Router();
 
-  router.post(
+  router.get(
     "/analyze-career",
     checkAuth,
     checkRole("user"),
-    upload.single("file"),
-    (req, res) => analyzeCareer(req, res, skillsCollection)
+    (req, res) => analyzeCareer(req, res, skillsCollection, cachedCoursesCollection)
   );
 
-  router.post("/ingest", (req, res) => ingestSkills(req, res, skillsCollection));
+  router.post(
+    "/analyze-resume",
+    upload.single("file"),
+    checkAuth,
+    checkRole("user"),
+    analyzeResumeController
+  );
+
+  router.post("/ingest", (req, res) =>
+    ingestSkills(req, res, skillsCollection)
+  );
 
   router.post("/courses", (req, res) =>
     getCoursesForSkills(req, res, cachedCoursesCollection)

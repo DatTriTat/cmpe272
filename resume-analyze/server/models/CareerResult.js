@@ -1,11 +1,62 @@
 import mongoose from "mongoose";
 
 const CareerResultSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, 
-  inputQuery: { type: String, required: true },
-  matchedJobs: { type: Array, default: [] },
-  gptSuggestions: { type: Array, default: [] },
-  createdAt: { type: Date, default: Date.now },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
+  results: [
+    {
+      title: { type: String, required: true },
+      description: String,
+      matchScore: Number,
+      salaryRange: String,
+      growthRate: String,
+      requiredSkills: [String],
+      recommendedSkills: [String],
+      userSkills: [String],
+
+      certifications: [
+        {
+          name: String,
+          provider: String,
+          difficulty: String,
+          duration: String,
+          url: String
+        }
+      ],
+
+      courses: [
+        {
+          name: String,
+          provider: String,
+          duration: String,
+          url: String
+        }
+      ],
+
+      category: String,
+
+      fitReasons: [
+        {
+          title: String,
+          description: String,
+          icon: String
+        }
+      ],
+
+      careerPath: [
+        {
+          title: String,
+          yearsExperience: String,
+          salary: String,
+          responsibilities: [String]
+        }
+      ],
+
+      detailedFitAnalysis: String
+    }
+  ],
+
+  createdAt: { type: Date, default: Date.now }
 });
 
 export default mongoose.model("CareerResult", CareerResultSchema);
