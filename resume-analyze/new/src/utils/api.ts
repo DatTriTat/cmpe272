@@ -101,3 +101,46 @@ export async function getFeedback(
   const data = await res.json();
   return data.feedback;
 }
+
+
+// utils/api.ts
+export async function saveInterviewSession(
+  role: string,
+  questions: {
+    question: string;
+    answer: string;
+    feedback: string;
+  }[],
+  idToken: string // Firebase ID Token
+) {
+  const response = await fetch(`${BASE_URL}/api/interview/save`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`, 
+    },
+    body: JSON.stringify({ role, questions }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to save session");
+  }
+
+  return response.json(); 
+}
+
+export async function getInterviewHistory(idToken: string) {
+  const response = await fetch(`${BASE_URL}/api/interview/interview-history`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Failed to fetch history");
+  }
+  return response.json();
+}

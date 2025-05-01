@@ -15,12 +15,15 @@ import {
   getFirstQuestion,
   getNextQuestion,
   getFeedback,
+  saveInterviewSession,
 } from "../../utils/api";
+import { useAuth } from "../../context/AuthContext";
+import { getInterviewHistory } from "../../utils/api";
+
 const AIInterviewPracticePage: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
   const [selected, setSelected] = React.useState("preparation");
   const [inputValue, setInputValue] = React.useState("");
-  const [responseHistory, setResponseHistory] = React.useState<string[]>([]);
   const [feedback, setFeedback] = React.useState<string | null>(null);
   const [isInputDisabled, setIsInputDisabled] = React.useState(false);
   const [question, setQuestion] = React.useState<string | null>(null);
@@ -28,47 +31,94 @@ const AIInterviewPracticePage: React.FC = () => {
   const [previousQuestion, setPreviousQuestion] = React.useState<string | null>(
     null
   );
+  const [tempRole, setTempRole] = React.useState("");
+  const [questions, setQuestions] = React.useState<
+    { question: string; answer: string; feedback: string }[]
+  >([]);
+  const totalQuestions = 5;
+  const [history, setHistory] = React.useState<any[]>([]);
+  const { user, setUser } = useAuth();
+  React.useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        if (!user) return;
+        const res = await getInterviewHistory(user?.token);
+        setHistory(res.sessions);
+      } catch (err) {
+        console.error("Failed to load history:", err);
+      }
+    };
 
-  const questions = [
-    "Tell me about yourself and your background in software development.",
-    "What experience do you have with React and its ecosystem?",
-    "Can you describe a challenging project you worked on and how you solved the problems?",
-    "How do you approach testing in your projects?",
-    "What's your experience with state management in React applications?",
-  ];
+    if (selected === "history") {
+      fetchHistory();
+    }
+  }, [selected]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || !question) return;
+    const currentQ = questions[currentQuestion];
+    if (!inputValue.trim() || !currentQ?.question) return;
 
-    setResponseHistory([...responseHistory, inputValue]);
-    setInputValue("");
     setIsInputDisabled(true);
 
-    const aiFeedback = await getFeedback(role, question, inputValue);
+    const aiFeedback = await getFeedback(role, currentQ.question, inputValue);
+    setInputValue("");
     setFeedback(aiFeedback);
+    console.log(questions);
+    setQuestions((prev) => {
+      const updated = [...prev];
+      updated[currentQuestion] = {
+        ...updated[currentQuestion],
+        answer: inputValue,
+        feedback: aiFeedback,
+      };
+      const allAnswered =
+        updated.length === totalQuestions &&
+        updated.every((q) => q.answer.trim() !== "");
+
+      /*if (allAnswered) {
+        saveInterviewSession(role, updated).then(() =>
+          console.log("Session saved to DB")
+        );
+      }*/
+      return updated;
+    });
   };
 
-
   const handleNextQuestion = async () => {
-    if (!question || responseHistory.length === 0) return;
-    setCurrentQuestion((prev) => (prev + 1) % questions.length);
+    const nextIndex = currentQuestion + 1;
 
-    const latestAnswer = responseHistory[responseHistory.length - 1];
-    const next = await getNextQuestion(role, question, latestAnswer);
+    if (nextIndex < questions.length) {
+      setCurrentQuestion(nextIndex);
+      setInputValue("");
+      setFeedback(questions[nextIndex].feedback || null);
+      setIsInputDisabled(!!questions[nextIndex].answer);
+      return;
+    }
 
-    setPreviousQuestion(question);
-    setQuestion(next);
-    setResponseHistory([]);
+    if (questions.length >= totalQuestions) return;
+
+    const current = questions[currentQuestion];
+    if (!current || !current.answer.trim()) return;
+
+    const nextQ = await getNextQuestion(role, current.question, current.answer);
+
+    setQuestions((prev) => [
+      ...prev,
+      { question: nextQ, answer: "", feedback: "" },
+    ]);
+    setCurrentQuestion(nextIndex);
+    setInputValue("");
     setFeedback(null);
     setIsInputDisabled(false);
   };
 
   const handlePreviousQuestion = () => {
-    setCurrentQuestion(
-      (prev) => (prev - 1 + questions.length) % questions.length
-    );
-    setResponseHistory([]);
-    setFeedback(null);
+    if (currentQuestion === 0) return;
+    const newIndex = currentQuestion - 1;
+    setCurrentQuestion(newIndex);
+    setInputValue("");
+    setFeedback(questions[newIndex].feedback);
+    setIsInputDisabled(true);
   };
 
   return (
@@ -76,8 +126,10 @@ const AIInterviewPracticePage: React.FC = () => {
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Interview Practice</h1>
-          {role && <Chip color="primary">{role}</Chip>}
-          </div>
+          {role && selected === "practice" && (
+            <Chip color="primary">{role}</Chip>
+          )}
+        </div>
 
         <Tabs
           aria-label="Interview practice sections"
@@ -112,9 +164,9 @@ const AIInterviewPracticePage: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-4">What to Expect</h3>
                   <p className="mb-4">
                     This practice session will simulate a real interview for a
-                    position. You'll be presented with common
-                    interview questions, and you can type your responses. Our AI
-                    will analyze your answers and provide feedback on:
+                    position. You'll be presented with common interview
+                    questions, and you can type your responses. Our AI will
+                    analyze your answers and provide feedback on:
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
@@ -156,42 +208,49 @@ const AIInterviewPracticePage: React.FC = () => {
                   <Input
                     fullWidth
                     placeholder="Role (e.g., React Developer):"
-                    value={role}
-                    onValueChange={setRole}
-                    isDisabled={isInputDisabled}
+                    value={tempRole}
+                    onValueChange={setTempRole}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleSendMessage();
                     }}
                   />
-                    <div>
-                      <Button
-                        color="primary"
-                        size="lg"
-                        onPress={async () => {
-                          const first = await getFirstQuestion(role);
-                          setQuestion(first);
-                          setPreviousQuestion(first);
-                          setSelected("practice");
-                        }}
-                        startContent={<Icon icon="lucide:play" />}
-                      >
+                  <div>
+                    <Button
+                      color="primary"
+                      size="lg"
+                      onPress={async () => {
+                        setRole(tempRole);
+                        setCurrentQuestion(0);
+                        setIsInputDisabled(false);
+                        const first = await getFirstQuestion(tempRole);
+                        setQuestion(first);
+                        setPreviousQuestion(first);
+                        setSelected("practice");
+                        setQuestions([
+                          { question: first, answer: "", feedback: "" },
+                        ]);
+                      }}
+                      startContent={<Icon icon="lucide:play" />}
+                    >
                       Start Practice Session
                     </Button>
                   </div>
                 </div>
               </CardBody>
-      
             </Card>
           </Tab>
 
-          <Tab key="practice" title="Practice Session"  isDisabled={role == null}
+          <Tab
+            key="practice"
+            title="Practice Session"
+            isDisabled={!role.trim()}
           >
             <Card>
               <CardHeader className="border-b border-divider">
                 <div className="w-full">
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="text-lg font-semibold">
-                      Question {currentQuestion + 1} of {questions.length}
+                      Question {currentQuestion + 1} of {totalQuestions}
                     </h3>
                     <div className="flex gap-2">
                       <Button
@@ -206,14 +265,17 @@ const AIInterviewPracticePage: React.FC = () => {
                         isIconOnly
                         variant="flat"
                         onPress={handleNextQuestion}
-                        isDisabled={currentQuestion === questions.length - 1}
+                        isDisabled={
+                          currentQuestion >= questions.length - 1 &&
+                          questions.length >= totalQuestions
+                        }
                       >
                         <Icon icon="lucide:chevron-right" />
                       </Button>
                     </div>
                   </div>
                   <Progress
-                    value={(currentQuestion + 1) * (100 / questions.length)}
+                    value={(currentQuestion + 1) * (100 / totalQuestions)}
                     className="mb-2"
                     color="primary"
                   />
@@ -224,18 +286,18 @@ const AIInterviewPracticePage: React.FC = () => {
                 <div className="space-y-6">
                   <div className="bg-content2 p-4 rounded-lg">
                     <h4 className="font-medium mb-2">Question:</h4>
-                    <p className="text-lg">{question}</p>
+                    <p className="text-lg">
+                      {questions[currentQuestion]?.question}
+                    </p>
                   </div>
 
                   <div className="space-y-2">
-                    {responseHistory.map((resp, idx) => (
-                      <div
-                        key={idx}
-                        className="bg-default-100 p-3 rounded-md text-sm"
-                      >
-                        <strong>Your response:</strong> {resp}
+                    {questions[currentQuestion]?.answer && (
+                      <div className="bg-default-100 p-3 rounded-md text-sm">
+                        <strong>Your response:</strong>{" "}
+                        {questions[currentQuestion].answer}
                       </div>
-                    ))}
+                    )}
 
                     <Input
                       fullWidth
@@ -260,12 +322,12 @@ const AIInterviewPracticePage: React.FC = () => {
                     />
                   </div>
 
-                  {feedback && (
+                  {questions[currentQuestion]?.feedback && (
                     <div className="mt-6">
                       <h4 className="font-semibold mb-2">AI Feedback:</h4>
                       <Card className="bg-content2">
                         <CardBody>
-                          <p>{feedback}</p>
+                          <p>{questions[currentQuestion].feedback}</p>{" "}
                         </CardBody>
                       </Card>
                     </div>
@@ -276,35 +338,47 @@ const AIInterviewPracticePage: React.FC = () => {
           </Tab>
 
           <Tab key="history" title="Practice History">
-            <Card>
-              <CardBody>
-                <div className="text-center py-8">
-                  <Icon
-                    icon="lucide:history"
-                    className="mx-auto mb-4 text-default-400"
-                    width={48}
-                    height={48}
-                  />
-                  <h3 className="text-xl font-semibold mb-2">
-                    No Practice Sessions Yet
-                  </h3>
-                  <p className="text-default-500 mb-6">
-                    Complete practice sessions to see your history and track
-                    your improvement over time.
-                  </p>
-                  <Button
-                    color="primary"
-                    onPress={() => setSelected("practice")}
-                  >
-                    Start Your First Practice
-                  </Button>
-                </div>
-              </CardBody>
-            </Card>
-          </Tab>
+  <Card>
+    <CardBody>
+      {history.length === 0 ? (
+        <div className="text-center py-8">
+          <Icon
+            icon="lucide:history"
+            className="mx-auto mb-4 text-default-400"
+            width={48}
+            height={48}
+          />
+          <h3 className="text-xl font-semibold mb-2">
+            No Practice Sessions Yet
+          </h3>
+          <p className="text-default-500 mb-6">
+            Complete practice sessions to see your history and track
+            your improvement over time.
+          </p>
+          <Button color="primary" onPress={() => setSelected("practice")}>
+            Start Your First Practice
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {history.map((session) => (
+            <div key={session._id} className="p-4 border rounded-lg">
+              <h4 className="font-semibold">{session.role}</h4>
+              <p className="text-sm text-default-500">
+                {new Date(session.createdAt).toLocaleString()} —{" "}
+                {session.questions.length} questions
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </CardBody>
+  </Card>
+</Tab>
+
         </Tabs>
       </div>
-    </div >
+    </div>
   );
 };
 

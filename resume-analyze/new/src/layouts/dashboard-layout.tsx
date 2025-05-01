@@ -19,7 +19,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const navItems = [
     { name: 'Profile', path: '/profile', icon: 'lucide:user' },
     { name: 'Chat Interview', path: '/interview/chat', icon: 'lucide:message-circle' },
-    { name: 'Practice Interview', path: '/interview/practice', icon: 'lucide:video' },
     { name: 'Upload Resume', path: '/resume/upload', icon: 'lucide:file-plus' },
     { name: 'Resume Analysis', path: '/resume/analysis', icon: 'lucide:file-text' },
   ];

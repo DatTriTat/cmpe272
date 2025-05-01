@@ -8,7 +8,6 @@ import SignUpPage from './pages/auth/sign-up';
 import SignInPage from './pages/auth/sign-in';
 import UserProfilePage from './pages/profile';
 import AIChatInterviewPage from './pages/interview/chat-interview';
-import AIInterviewPracticePage from './pages/interview/practice';
 import UploadResumePage from './pages/resume/upload';
 import ResumeAnalysisPage from './pages/resume/analysis';
 import DashboardPage from './pages/dashboard';
@@ -80,13 +79,6 @@ const App: React.FC = () => {
           <ProtectedRoute>
             <DashboardLayout>
               <AIChatInterviewPage />
-            </DashboardLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/interview/practice" element={
-          <ProtectedRoute>
-            <DashboardLayout>
-              <AIInterviewPracticePage />
             </DashboardLayout>
           </ProtectedRoute>
         } />
