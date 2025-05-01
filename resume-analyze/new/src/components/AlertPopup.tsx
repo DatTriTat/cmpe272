@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardBody } from "@heroui/react"; // hoặc tùy thư viện bạn dùng
+import { Card, CardBody } from "@heroui/react"; 
 
 type AlertPopupProps = {
   message: string;
@@ -9,7 +9,7 @@ type AlertPopupProps = {
 
 export function AlertPopup({
   message,
-  duration = 3000,
+  duration = 2000,
   onClose,  
 }: AlertPopupProps) {
   const [visible, setVisible] = useState(true);

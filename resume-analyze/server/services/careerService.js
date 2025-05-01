@@ -18,7 +18,7 @@ export async function createEmbedding(text) {
 export async function ingestSkillsService(collection) {
   return new Promise((resolve, reject) => {
     const results = [];
-    fs.createReadStream("./uploads/Generated_Career_Database_final.csv")
+    fs.createReadStream("./uploads/Career_Suggestions_Dataset_modified.csv")
       .pipe(csv())
       .on("data", (data) => {
         if (data.skills_text && data.skills_text.trim() !== "") {

@@ -14,19 +14,16 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
 const ResumeAnalysisPage: React.FC = () => {
-  const [selected, setSelected] = React.useState("overview");
+  const [selected, setSelected] = useState("overview");
   const [analysis, setAnalysis] = useState<any>(null);
   const navigate = useNavigate();
-  useEffect(() => {
-    console.log("ResumeAnalysisPage mounted");
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
     try {
       const stored = localStorage.getItem("resumeAnalysisResult");
-      console.log("Stored analysis (raw):", stored);
-
       if (stored && stored !== "undefined" && stored !== "null") {
         const parsed = JSON.parse(stored);
-        console.log("Parsed analysis:", parsed);
         setAnalysis(parsed);
       } else {
         console.warn("No valid data found, redirecting...");
@@ -35,6 +32,8 @@ const ResumeAnalysisPage: React.FC = () => {
     } catch (error) {
       console.error("JSON parse error:", error);
       navigate("/resume/upload");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -67,6 +66,9 @@ const ResumeAnalysisPage: React.FC = () => {
       items: analysis?.improvementSuggestions?.atsOptimization || [],
     },
   ];
+  const strengths = analysis?.keyFindings?.strengths || [];
+  const areasToImprove = analysis?.keyFindings?.areasToImprove || [];
+  const criticalIssues = analysis?.keyFindings?.criticalIssues || [];
 
   const keywordMatches = [
     { keyword: "React", count: 5, recommended: 3 },
@@ -78,8 +80,21 @@ const ResumeAnalysisPage: React.FC = () => {
     { keyword: "Testing", count: 1, recommended: 3 },
   ];
   const atsIssues = analysis?.atsCompatibilityDetails?.issues || [];
-
-  
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="flex flex-col items-center gap-3">
+          <Progress
+            isIndeterminate
+            color="primary"
+            className="w-64"
+            aria-label="Loading resume analysis"
+          />
+          <p className="text-default-500 text-sm">Analyzing your resume...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -182,9 +197,9 @@ const ResumeAnalysisPage: React.FC = () => {
                           <span>Strengths</span>
                         </h4>
                         <ul className="text-sm space-y-2">
-                          <li>• Strong technical skills section</li>
-                          <li>• Clear work history chronology</li>
-                          <li>• Excellent grammar and spelling</li>
+                          {strengths.map((item: string, idx: number) => (
+                            <li key={idx}>• {item}</li>
+                          ))}
                         </ul>
                       </CardBody>
                     </Card>
@@ -199,9 +214,9 @@ const ResumeAnalysisPage: React.FC = () => {
                           <span>Areas to Improve</span>
                         </h4>
                         <ul className="text-sm space-y-2">
-                          <li>• Lack of quantifiable achievements</li>
-                          <li>• Missing relevant keywords</li>
-                          <li>• Professional summary needs focus</li>
+                          {areasToImprove.map((item: string, idx: number) => (
+                            <li key={idx}>• {item}</li>
+                          ))}
                         </ul>
                       </CardBody>
                     </Card>
@@ -216,9 +231,9 @@ const ResumeAnalysisPage: React.FC = () => {
                           <span>Critical Issues</span>
                         </h4>
                         <ul className="text-sm space-y-2">
-                          <li>• ATS compatibility issues</li>
-                          <li>• Outdated skills section</li>
-                          <li>• Contact information incomplete</li>
+                          {criticalIssues.map((item: string, idx: number) => (
+                            <li key={idx}>• {item}</li>
+                          ))}
                         </ul>
                       </CardBody>
                     </Card>

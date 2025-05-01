@@ -38,6 +38,11 @@ const AIInterviewPracticePage: React.FC = () => {
   const totalQuestions = 5;
   const [history, setHistory] = React.useState<any[]>([]);
   const { user, setUser } = useAuth();
+  const [viewingHistorySession, setViewingHistorySession] =
+    React.useState<null | {
+      role: string;
+      questions: { question: string; answer: string; feedback: string }[];
+    }>(null);
   React.useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -64,24 +69,25 @@ const AIInterviewPracticePage: React.FC = () => {
     setInputValue("");
     setFeedback(aiFeedback);
     console.log(questions);
-    setQuestions((prev) => {
-      const updated = [...prev];
-      updated[currentQuestion] = {
-        ...updated[currentQuestion],
-        answer: inputValue,
-        feedback: aiFeedback,
-      };
-      const allAnswered =
-        updated.length === totalQuestions &&
-        updated.every((q) => q.answer.trim() !== "");
+    const updatedQuestions = [...questions];
+    updatedQuestions[currentQuestion] = {
+      ...updatedQuestions[currentQuestion],
+      answer: inputValue,
+      feedback: aiFeedback,
+    };
+    const allAnswered =
+      updatedQuestions.length === totalQuestions &&
+      updatedQuestions.every((q) => q.answer.trim() !== "");
+    if (allAnswered) {
+      try {
+        if (!user?.token) throw new Error("Missing Firebase token");
 
-      /*if (allAnswered) {
-        saveInterviewSession(role, updated).then(() =>
-          console.log("Session saved to DB")
-        );
-      }*/
-      return updated;
-    });
+        await saveInterviewSession(role, updatedQuestions, user?.token);
+      } catch (err) {
+        console.error("Failed to save session:", err);
+      }
+    }
+    setQuestions(updatedQuestions);
   };
 
   const handleNextQuestion = async () => {
@@ -338,44 +344,65 @@ const AIInterviewPracticePage: React.FC = () => {
           </Tab>
 
           <Tab key="history" title="Practice History">
-  <Card>
-    <CardBody>
-      {history.length === 0 ? (
-        <div className="text-center py-8">
-          <Icon
-            icon="lucide:history"
-            className="mx-auto mb-4 text-default-400"
-            width={48}
-            height={48}
-          />
-          <h3 className="text-xl font-semibold mb-2">
-            No Practice Sessions Yet
-          </h3>
-          <p className="text-default-500 mb-6">
-            Complete practice sessions to see your history and track
-            your improvement over time.
-          </p>
-          <Button color="primary" onPress={() => setSelected("practice")}>
-            Start Your First Practice
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {history.map((session) => (
-            <div key={session._id} className="p-4 border rounded-lg">
-              <h4 className="font-semibold">{session.role}</h4>
-              <p className="text-sm text-default-500">
-                {new Date(session.createdAt).toLocaleString()} —{" "}
-                {session.questions.length} questions
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-    </CardBody>
-  </Card>
-</Tab>
-
+            <Card>
+              <CardBody>
+                {history.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Icon
+                      icon="lucide:history"
+                      className="mx-auto mb-4 text-default-400"
+                      width={48}
+                      height={48}
+                    />
+                    <h3 className="text-xl font-semibold mb-2">
+                      No Practice Sessions Yet
+                    </h3>
+                    <p className="text-default-500 mb-6">
+                      Complete practice sessions to see your history and track
+                      your improvement over time.
+                    </p>
+                    <Button
+                      color="primary"
+                      onPress={() => setSelected("practice")}
+                    >
+                      Start Your First Practice
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {history.map((session) => (
+                      <div key={session._id} className="p-4 border rounded-lg">
+                        <h4 className="font-semibold">{session.role}</h4>
+                        <p className="text-sm text-default-500">
+                          {new Date(session.createdAt).toLocaleString()} —{" "}
+                          {session.questions.length} questions
+                        </p>
+                        <Button
+                          className="mt-2"
+                          color="primary"
+                          onPress={() => {
+                            setViewingHistorySession({
+                              role: session.role,
+                              questions: session.questions,
+                            });
+                            setRole(session.role);
+                            setSelected("practice");
+                            setCurrentQuestion(0);
+                            setIsInputDisabled(true);
+                            setQuestions(session.questions);
+                            setFeedback(session.questions[0]?.feedback || null);
+                            setInputValue("");
+                          }}
+                        >
+                          View Session
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+          </Tab>
         </Tabs>
       </div>
     </div>
