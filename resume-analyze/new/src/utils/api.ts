@@ -32,7 +32,6 @@ export async function saveUserProfile(
 }
 
 export async function verifyIdToken(idToken: string) {
-  console.log("Verifying ID token:", idToken); // Debugging line
   const res = await fetch(`${BASE_URL}/api/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -45,4 +44,60 @@ export async function verifyIdToken(idToken: string) {
   }
 
   return await res.json();
+}
+
+export async function getFirstQuestion(role: string): Promise<string> {
+  const res = await fetch(`${BASE_URL}/api/interview/first-question`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to get first question: ${errorText}`);
+  }
+
+  const data = await res.json();
+  return data.question;
+}
+
+export async function getNextQuestion(
+  role: string,
+  previousQuestion: string,
+  previousAnswer: string
+): Promise<string> {
+  const res = await fetch(`${BASE_URL}/api/interview/next-question`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role, previousQuestion, previousAnswer }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to get next question: ${errorText}`);
+  }
+
+  const data = await res.json();
+  return data.question;
+}
+
+export async function getFeedback(
+  role: string,
+  question: string,
+  answer: string
+): Promise<string> {
+  const res = await fetch(`${BASE_URL}/api/interview/feedback`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role, question, answer }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to get feedback: ${errorText}`);
+  }
+
+  const data = await res.json();
+  return data.feedback;
 }

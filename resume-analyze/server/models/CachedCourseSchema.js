@@ -10,7 +10,7 @@ const CachedCourseSchema = new mongoose.Schema({
       url: { type: String, required: true }
     }
   ],
-  lastFetched: { type: Date, default: Date.now } // nếu muốn TTL
+  lastFetched: { type: Date, default: Date.now } 
 });
 
 export default mongoose.model("CachedCourse", CachedCourseSchema);

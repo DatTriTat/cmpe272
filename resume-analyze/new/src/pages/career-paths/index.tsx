@@ -173,7 +173,7 @@ const CareerPathsPage: React.FC = () => {
                   <DropdownTrigger>
                     <Button
                       variant="bordered"
-                      endContent={<Icon icon="lucide:chevron-down" size={16} />}
+                      endContent={<Icon icon="lucide:chevron-down" width={16} height={16} />}
                     >
                       {selectedCategory}
                     </Button>
@@ -194,7 +194,7 @@ const CareerPathsPage: React.FC = () => {
                   <DropdownTrigger>
                     <Button
                       variant="bordered"
-                      endContent={<Icon icon="lucide:chevron-down" size={16} />}
+                      endContent={<Icon icon="lucide:chevron-down" width={16} height={16} />}
                     >
                       {selectedLevel}
                     </Button>
@@ -317,7 +317,8 @@ const CareerPathsPage: React.FC = () => {
                             <Icon
                               icon="lucide:check"
                               className="ml-1"
-                              size={12}
+                              width={12}
+                              height={12}
                             />
                           )}
                         </Chip>
@@ -375,7 +376,7 @@ const CareerPathsPage: React.FC = () => {
                                 color="primary"
                                 className="mt-2"
                                 endContent={
-                                  <Icon icon="lucide:external-link" size={14} />
+                                  <Icon icon="lucide:external-link" width={14} height={14} />
                                 }
                                 as="a"
                                 href={cert.url}
@@ -413,7 +414,8 @@ const CareerPathsPage: React.FC = () => {
                                   endContent={
                                     <Icon
                                       icon="lucide:external-link"
-                                      size={14}
+                                      width={14}
+                                      height={14}
                                     />
                                   }
                                   as="a"

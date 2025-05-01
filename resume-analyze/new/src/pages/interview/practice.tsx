@@ -20,7 +20,6 @@ const AIInterviewPracticePage: React.FC = () => {
     setIsRecording(true);
     setFeedback(null);
     
-    // Simulate recording for 10 seconds then show feedback
     setTimeout(() => {
       setIsRecording(false);
       setFeedback("Your answer was clear and concise. You effectively highlighted your experience with React hooks and component architecture. Consider providing more specific examples of projects where you've implemented these concepts. Your body language was confident, but try to maintain more consistent eye contact with the camera.");

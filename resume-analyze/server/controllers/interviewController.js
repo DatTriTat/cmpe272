@@ -1,30 +1,66 @@
-import { OpenAI } from "openai";
+import {
+  generateFollowupQuestion,
+  generateFeedback,
+  generateFirstQuestion,
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+} from "../services/langchainService.js";
 
-export async function interviewSession(req, res) {
-  const { job_title, user_response } = req.body;
-
-  const messages = [
-    {
-      role: "system",
-      content: `You are a private-sector interviewer simulating a real interview for the job: ${job_title}.
-Ask one question at a time, wait for the user's response, then give feedback and ask the next question.
-Focus on clarity, relevance, and alignment with private-sector norms.`,
-    },
-    { role: "user", content: user_response }
-  ];
-
+// POST /api/interview/next-question
+export async function getNextQuestion(req, res) {
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages,
-    });
+    const { role, previousQuestion, previousAnswer } = req.body;
 
-    const reply = completion.choices[0].message.content;
-    res.json({ reply });
+    if (!role || !previousAnswer || !previousQuestion) {
+      return res
+        .status(400)
+        .json({
+          error:
+            "Missing required fields: role, previousQuestion, previousAnswer",
+        });
+    }
+
+    const question = await generateFollowupQuestion(
+      role,
+      previousQuestion,
+      previousAnswer
+    );
+    res.json({ question });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "OpenAI failed" });
+    console.error("Error generating follow-up question:", err);
+    res.status(500).json({ error: "Failed to generate question" });
+  }
+}
+
+// POST /api/interview/feedback
+export async function getFeedback(req, res) {
+  try {
+    const { role, question, answer } = req.body;
+
+    if (!role || !question || !answer) {
+      return res
+        .status(400)
+        .json({ error: "Missing required fields: role, question, answer" });
+    }
+
+    const feedback = await generateFeedback(role, question, answer);
+    res.json({ feedback });
+  } catch (err) {
+    console.error("Error generating feedback:", err);
+    res.status(500).json({ error: "Failed to generate feedback" });
+  }
+}
+export async function getFirstQuestion(req, res) {
+  try {
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ error: "Missing required field: role" });
+    }
+
+    const question = await generateFirstQuestion(role);
+    res.json({ question });
+  } catch (err) {
+    console.error("Error generating first question:", err);
+    res.status(500).json({ error: "Failed to generate first question" });
   }
 }

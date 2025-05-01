@@ -39,7 +39,6 @@ export async function uploadResumeForAnalysis(file: File, token: string): Promis
   }
 
   const data = await response.json();
-  console.log("Resume analysis result:", data.analysis); // Debugging line
   return data.analysis;
 }
 
@@ -82,7 +81,6 @@ export async function fetchCareerSuggestions(token?: string): Promise<any[]> {
       throw new Error(error.message || "Failed to fetch suggestions");
     }
     const data = await response.json();
-    console.log("Career suggestions:", data); // Debugging line
     return data;
   } catch (err: any) {
     console.error("Error in fetchCareerSuggestions:", err.message);

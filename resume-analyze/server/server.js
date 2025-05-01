@@ -9,7 +9,7 @@ import { MongoClient } from "mongodb";
 import authRoutes from "./routes/authRoutes.js";
 import careerRoutes from "./routes/careerRoutes.js";
 import userRoutes from './routes/userRoutes.js';
-
+import interviewRoutes from './routes/interviewRoutes.js';
 dotenv.config();
 
 
@@ -38,6 +38,7 @@ console.log("MongoClient connected to vector DB");
 app.use("/api/auth", authRoutes);
 app.use("/api/career", careerRoutes(skillsCollection, cachedCoursesCollection));
 app.use("/api", userRoutes);
+app.use('/api/interview', interviewRoutes);
 
 // Health check
 app.get("/", (req, res) => {

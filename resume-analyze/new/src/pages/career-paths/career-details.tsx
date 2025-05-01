@@ -17,16 +17,15 @@ interface CareerDetailParams {
 }
 
 const CareerDetailsPage: React.FC = () => {
-  const { id } = useParams<CareerDetailParams>();
-  const careerPathId = parseInt(id || "1");
+  const { id } = useParams();
+  const careerPathId = parseInt(id as string || "1");
 
   const stored = localStorage.getItem("careerSuggestions");
   const allPaths = stored ? JSON.parse(stored) : [];
   const careerPath = allPaths.find((p: any) => p.id === careerPathId);
   console.log("Looking for ID:", careerPath);
 
-  // This would typically come from an API or context
-  // Using mock data for demonstration
+
   const getScoreColor = (score: number) => {
     if (score >= 85) return "success";
     if (score >= 70) return "warning";
@@ -178,7 +177,7 @@ const CareerDetailsPage: React.FC = () => {
                     >
                       {skill}
                       {careerPath.userSkills.includes(skill) && (
-                        <Icon icon="lucide:check" className="ml-1" size={14} />
+                        <Icon icon="lucide:check" className="ml-1" style={{ fontSize: 14 }} />
                       )}
                     </Chip>
                   ))}
@@ -241,7 +240,7 @@ const CareerDetailsPage: React.FC = () => {
                             <Icon
                               icon="lucide:check"
                               className="text-primary mt-1"
-                              size={14}
+                              style={{ fontSize: 14 }}
                             />
                             <span className="text-sm">{resp}</span>
                           </div>
@@ -291,7 +290,7 @@ const CareerDetailsPage: React.FC = () => {
                           color="primary"
                           variant="flat"
                           endContent={
-                            <Icon icon="lucide:external-link" size={14} />
+                            <Icon icon="lucide:external-link" style={{ fontSize: 14 }} />
                           }
                         >
                           Learn More
@@ -331,7 +330,7 @@ const CareerDetailsPage: React.FC = () => {
                               href={course.url}
                               target="_blank"
                               endContent={
-                                <Icon icon="lucide:external-link" size={14} />
+                                <Icon icon="lucide:external-link" style={{ fontSize: 14 }} />
                               }
                             >
                               View Course
