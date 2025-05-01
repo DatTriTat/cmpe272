@@ -4,8 +4,11 @@ import FormData from "form-data";
 
 export async function parseResume(file) {
   const form = new FormData();
-  form.append("file", fs.createReadStream(file.path));
-
+  form.append("file", file.buffer, {
+    filename: file.originalname,
+    contentType: file.mimetype,
+  });
+  
   try {
     const response = await axios.post(
       "https://api.affinda.com/v2/resumes",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardBody,
@@ -10,7 +10,8 @@ import {
 import { Icon } from "@iconify/react";
 
 interface Experience {
-  _id: string;
+  id?: string | number;
+  _id?: string;
   company: string;
   position: string;
   location: string;
@@ -30,10 +31,9 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
   setExperiences,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | number | null>(null);
   const [editExperience, setEditExperience] = useState<Experience | null>(null);
-
-  const [newExperience, setNewExperience] = useState<Omit<Experience, "_id">>({
+  const [newExperience, setNewExperience] = useState<Experience>({
     company: "",
     position: "",
     location: "",
@@ -43,32 +43,57 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
     description: "",
   });
 
+  useEffect(() => {
+    const patched = experiences.map((exp) => ({
+      ...exp,
+      id: exp._id?.toString() || exp.id || Date.now() + Math.random(),
+    }));
+    setExperiences(patched);
+  }, []);
+
+  const handleAddExperience = () => {
+    const newId = Date.now();
+    const newExp = { ...newExperience, id: newId };
+    setExperiences([newExp, ...experiences]);
+    setNewExperience({
+      company: "",
+      position: "",
+      location: "",
+      startDate: "",
+      endDate: "",
+      current: false,
+      description: "",
+    });
+    setIsAdding(false);
+  };
+
   const handleEdit = (exp: Experience) => {
-    setEditExperience({ ...exp });
-    setEditingId(exp._id);
+    const cloned = JSON.parse(JSON.stringify(exp));
+    setEditExperience(cloned);
+    setEditingId(cloned.id!);
     setIsAdding(false);
   };
 
   const handleUpdateExperience = () => {
-    if (!editExperience || !editingId) return;
+    if (!editExperience || editingId == null) return;
     const updated = experiences.map((exp) =>
-      exp._id === editingId ? { ...editExperience } : exp
+      exp.id === editingId ? { ...editExperience } : exp
     );
     setExperiences(updated);
     setEditingId(null);
     setEditExperience(null);
   };
 
-  const handleRemoveExperience = (id: string) => {
-    setExperiences(experiences.filter((exp) => exp._id !== id));
+  const handleRemoveExperience = (id: string | number) => {
+    setExperiences(experiences.filter((exp) => exp.id !== id));
   };
 
   const handleCurrentChange = (checked: boolean) => {
-    setNewExperience((prev) => ({
-      ...prev,
+    setNewExperience({
+      ...newExperience,
       current: checked,
-      endDate: checked ? "" : prev.endDate,
-    }));
+      endDate: checked ? "" : newExperience.endDate,
+    });
   };
 
   return (
@@ -119,7 +144,10 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                 type="month"
                 value={newExperience.startDate}
                 onChange={(e) =>
-                  setNewExperience({ ...newExperience, startDate: e.target.value })
+                  setNewExperience({
+                    ...newExperience,
+                    startDate: e.target.value,
+                  })
                 }
               />
               <div className="flex flex-col">
@@ -129,7 +157,10 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                   isDisabled={newExperience.current}
                   value={newExperience.endDate}
                   onChange={(e) =>
-                    setNewExperience({ ...newExperience, endDate: e.target.value })
+                    setNewExperience({
+                      ...newExperience,
+                      endDate: e.target.value,
+                    })
                   }
                 />
                 <label className="flex items-center gap-2 mt-2 cursor-pointer">
@@ -156,11 +187,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
               </Button>
               <Button
                 color="primary"
-                onPress={() => {
-                  // Gửi lên backend để thêm, hoặc handle tùy app
-                  console.log("You must implement backend create logic.");
-                  setIsAdding(false);
-                }}
+                onPress={handleAddExperience}
                 isDisabled={
                   !newExperience.company ||
                   !newExperience.position ||
@@ -173,7 +200,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
           </div>
         )}
 
-        {editingId && editExperience && (
+        {editingId !== null && editExperience && (
           <div className="border rounded-lg p-4 space-y-4">
             <h4 className="font-semibold">Edit Experience</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -271,7 +298,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
 
         <div className="space-y-6">
           {experiences.map((exp, index) => (
-            <div key={exp._id} className="space-y-4">
+            <div key={exp.id ?? exp._id ?? index} className="space-y-4">
               <div className="flex justify-between">
                 <div>
                   <h4 className="font-semibold">{exp.position}</h4>
@@ -305,7 +332,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                     isIconOnly
                     variant="light"
                     color="danger"
-                    onPress={() => handleRemoveExperience(exp._id)}
+                    onPress={() => handleRemoveExperience(exp.id!)}
                   >
                     <Icon icon="lucide:trash-2" />
                   </Button>

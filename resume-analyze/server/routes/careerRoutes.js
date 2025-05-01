@@ -8,7 +8,7 @@ import {
   analyzeCareer,
   ingestSkills,
 } from "../controllers/analyzeResumeController.js";
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ storage: multer.memoryStorage() });
 
 export default (skillsCollection, cachedCoursesCollection) => {
   const router = express.Router();

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardBody, Button, Input, Divider } from "@heroui/react";
 import { Icon } from "@iconify/react";
 
 interface Education {
-  _id: string;
+  _id?: string;
+  id?: string | number;
   school: string;
   degree: string;
   field: string;
@@ -23,8 +24,8 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   setEducations,
 }) => {
   const [isAdding, setIsAdding] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [newEducation, setNewEducation] = useState<Omit<Education, "_id">>({
+  const [editingId, setEditingId] = useState<string | number | null>(null);
+  const [newEducation, setNewEducation] = useState<Education>({
     school: "",
     degree: "",
     field: "",
@@ -35,21 +36,49 @@ const EducationSection: React.FC<EducationSectionProps> = ({
   });
   const [editEducation, setEditEducation] = useState<Education | null>(null);
 
-  const handleRemoveEducation = (id: string) => {
-    setEducations((prev) => prev.filter((edu) => edu._id !== id));
+  useEffect(() => {
+    const patched = educations.map((edu) => ({
+      ...edu,
+      id: edu._id ?? edu.id ?? `${Date.now()}-${Math.random()}`,
+    }));
+    setEducations(patched);
+  }, []);
+
+  const handleAddEducation = () => {
+    const newId = `${Date.now()}-${Math.random()}`;
+    const entry = { ...newEducation, id: newId };
+    setEducations((prev) => [entry, ...prev]);
+    setNewEducation({
+      school: "",
+      degree: "",
+      field: "",
+      location: "",
+      startDate: "",
+      endDate: "",
+      current: false,
+    });
+    setIsAdding(false);
+  };
+
+  const handleRemoveEducation = (id: string | number) => {
+    setEducations((prev) => prev.filter((edu) => String(edu.id) !== String(id)));
   };
 
   const handleEdit = (edu: Education) => {
-    setEditEducation({ ...edu });
-    setEditingId(edu._id);
+    const cloned = {
+      ...edu,
+      id: edu._id ?? edu.id ?? `${Date.now()}-${Math.random()}`,
+    };
+    setEditEducation(cloned);
+    setEditingId(cloned.id!);
     setIsAdding(false);
   };
 
   const handleUpdateEducation = () => {
-    if (!editEducation || !editingId) return;
+    if (!editEducation || editingId === null) return;
 
     const updated = educations.map((edu) =>
-      edu._id === editingId ? { ...editEducation } : edu
+      String(edu.id) === String(editingId) ? { ...editEducation } : edu
     );
 
     setEducations(updated);
@@ -80,6 +109,96 @@ const EducationSection: React.FC<EducationSectionProps> = ({
             </Button>
           )}
         </div>
+
+        {/* Add Education Form */}
+        {isAdding && (
+          <div className="border rounded-lg p-4 space-y-4">
+            <h4 className="font-semibold">Add New Education</h4>
+            <Input
+              label="School/University"
+              value={newEducation.school}
+              onValueChange={(val) =>
+                setNewEducation((prev) => ({ ...prev, school: val }))
+              }
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Degree"
+                value={newEducation.degree}
+                onValueChange={(val) =>
+                  setNewEducation((prev) => ({ ...prev, degree: val }))
+                }
+              />
+              <Input
+                label="Field of Study"
+                value={newEducation.field}
+                onValueChange={(val) =>
+                  setNewEducation((prev) => ({ ...prev, field: val }))
+                }
+              />
+            </div>
+            <Input
+              label="Location"
+              value={newEducation.location}
+              onValueChange={(val) =>
+                setNewEducation((prev) => ({ ...prev, location: val }))
+              }
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Start Date"
+                type="month"
+                value={newEducation.startDate}
+                onChange={(e) =>
+                  setNewEducation((prev) => ({
+                    ...prev,
+                    startDate: e.target.value,
+                  }))
+                }
+              />
+              <div className="flex flex-col">
+                <Input
+                  label="End Date"
+                  type="month"
+                  isDisabled={newEducation.current}
+                  value={newEducation.endDate}
+                  onChange={(e) =>
+                    setNewEducation((prev) => ({
+                      ...prev,
+                      endDate: e.target.value,
+                    }))
+                  }
+                />
+                <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newEducation.current}
+                    onChange={(e) =>
+                      handleCurrentChange(e.target.checked)
+                    }
+                  />
+                  <span className="text-sm">I'm currently studying here</span>
+                </label>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="flat" onPress={() => setIsAdding(false)}>
+                Cancel
+              </Button>
+              <Button
+                color="primary"
+                onPress={handleAddEducation}
+                isDisabled={
+                  !newEducation.school ||
+                  !newEducation.degree ||
+                  !newEducation.startDate
+                }
+              >
+                Save
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Edit Education */}
         {editingId !== null && editEducation && (
@@ -148,9 +267,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
                       setEditEducation((prev) => ({
                         ...prev!,
                         current: e.target.checked,
-                        endDate: e.target.checked
-                          ? ""
-                          : prev!.endDate,
+                        endDate: e.target.checked ? "" : prev!.endDate,
                       }))
                     }
                   />
@@ -180,7 +297,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
         {/* Education List */}
         <div className="space-y-6">
           {educations.map((edu, index) => (
-            <div key={edu._id} className="space-y-2">
+            <div key={edu._id ?? edu.id ?? index} className="space-y-2">
               <div className="flex justify-between">
                 <div>
                   <h4 className="font-semibold">{edu.school}</h4>
@@ -215,7 +332,7 @@ const EducationSection: React.FC<EducationSectionProps> = ({
                     isIconOnly
                     variant="light"
                     color="danger"
-                    onPress={() => handleRemoveEducation(edu._id)}
+                    onPress={() => handleRemoveEducation(edu.id!)}
                   >
                     <Icon icon="lucide:trash-2" />
                   </Button>

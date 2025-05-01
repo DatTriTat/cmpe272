@@ -5,7 +5,7 @@ import { mapResumeToProfileFromFile } from "../controllers/analyzeResumeControll
 
 import multer from "multer";
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 router.put("/profile", checkAuth, updateProfile);
 router.post("/profile/map", upload.single("file"), mapResumeToProfileFromFile);

@@ -5,7 +5,6 @@ import { parseResume } from "../utils/parseResume.js";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 export const analyzeResumeService = async (file) => {
-  try {
     const data = await parseResume(file);
 
     const prompt = `
@@ -74,11 +73,7 @@ export const analyzeResumeService = async (file) => {
     const analysisResult = JSON.parse(rawContent);
 
     return analysisResult;
-  } finally {
-    fs.unlink(file.path, (err) => {
-      if (err) console.error("Failed to delete temp file:", err);
-    });
-  }
+  
 };
 
 export async function mapResumeToProfile(file) {
