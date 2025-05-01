@@ -61,7 +61,7 @@ const CareerPathsPage: React.FC = () => {
   React.useEffect(() => {
     try {
       const stored = localStorage.getItem("careerSuggestions");
-      
+
       if (stored) {
         const parsed = JSON.parse(stored);
 
@@ -312,15 +312,17 @@ const CareerPathsPage: React.FC = () => {
                           variant="flat"
                           size="sm"
                         >
-                          {skill}
-                          {path.userSkills.includes(skill) && (
-                            <Icon
-                              icon="lucide:check"
-                              className="ml-1"
-                              width={12}
-                              height={12}
-                            />
-                          )}
+                          <div className="flex items-center">
+                            {skill}
+                            {path.userSkills.includes(skill) && (
+                              <Icon
+                                icon="lucide:check"
+                                className="ml-1"
+                                width={12}
+                                height={12}
+                              />
+
+                            )} </div>
                         </Chip>
                       ))}
                     </div>

@@ -191,7 +191,6 @@ export async function analyzeCareerFromProfile(
     { skills: missingSkills },
     cachedCoursesCollection
   );
-
   const enriched = suggestions.map((sug) => {
     const missing = sug.requiredSkills.filter(
       (s) => !sug.userSkills.includes(s)

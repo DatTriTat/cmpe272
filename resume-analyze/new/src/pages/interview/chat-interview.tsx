@@ -15,7 +15,7 @@ import {
   getFirstQuestion,
   getNextQuestion,
   getFeedback,
-} from "../../utils/api"; 
+} from "../../utils/api";
 const AIInterviewPracticePage: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
   const [selected, setSelected] = React.useState("preparation");
@@ -24,7 +24,7 @@ const AIInterviewPracticePage: React.FC = () => {
   const [feedback, setFeedback] = React.useState<string | null>(null);
   const [isInputDisabled, setIsInputDisabled] = React.useState(false);
   const [question, setQuestion] = React.useState<string | null>(null);
-  const [role] = React.useState("React Developer"); // hoặc nhận từ props/context
+  const [role, setRole] = React.useState("");
   const [previousQuestion, setPreviousQuestion] = React.useState<string | null>(
     null
   );
@@ -39,15 +39,15 @@ const AIInterviewPracticePage: React.FC = () => {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || !question) return;
-  
+
     setResponseHistory([...responseHistory, inputValue]);
     setInputValue("");
     setIsInputDisabled(true);
-  
+
     const aiFeedback = await getFeedback(role, question, inputValue);
     setFeedback(aiFeedback);
   };
-  
+
 
   const handleNextQuestion = async () => {
     if (!question || responseHistory.length === 0) return;
@@ -55,8 +55,8 @@ const AIInterviewPracticePage: React.FC = () => {
 
     const latestAnswer = responseHistory[responseHistory.length - 1];
     const next = await getNextQuestion(role, question, latestAnswer);
-  
-    setPreviousQuestion(question); 
+
+    setPreviousQuestion(question);
     setQuestion(next);
     setResponseHistory([]);
     setFeedback(null);
@@ -76,8 +76,8 @@ const AIInterviewPracticePage: React.FC = () => {
       <div className="flex flex-col gap-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Interview Practice</h1>
-          <Chip color="primary">React Developer Position</Chip>
-        </div>
+          {role && <Chip color="primary">{role}</Chip>}
+          </div>
 
         <Tabs
           aria-label="Interview practice sections"
@@ -91,11 +91,11 @@ const AIInterviewPracticePage: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-4">Interview Tips</h3>
                   <ul className="space-y-3">
                     {[
-                      "Find a quiet space with good lighting and minimal background distractions.",
-                      "Test your camera and microphone before starting the practice session.",
-                      "Dress professionally as you would for an actual interview.",
-                      "Prepare examples of your past work and achievements to reference in your answers.",
-                      "Practice the STAR method (Situation, Task, Action, Result) for behavioral questions.",
+                      "Choose a distraction-free space where you can focus and type comfortably.",
+                      "Use proper grammar and avoid slang or overly casual language.",
+                      "You might need to reference past projects, skills, or experiences.",
+                      "Have a few strong stories ready using the STAR method (Situation, Task, Action, Result).",
+                      "Think before you type — clarity and thoughtfulness matter more than speed.",
                     ].map((tip, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <Icon
@@ -112,7 +112,7 @@ const AIInterviewPracticePage: React.FC = () => {
                   <h3 className="text-lg font-semibold mb-4">What to Expect</h3>
                   <p className="mb-4">
                     This practice session will simulate a real interview for a
-                    React Developer position. You'll be presented with common
+                    position. You'll be presented with common
                     interview questions, and you can type your responses. Our AI
                     will analyze your answers and provide feedback on:
                   </p>
@@ -152,24 +152,40 @@ const AIInterviewPracticePage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-center">
-                  <Button
-                    color="primary"
-                    size="lg"
-                    onPress={async () => {
-                      const first = await getFirstQuestion(role);
-                      setQuestion(first);
-                      setPreviousQuestion(first);
-                      setSelected("practice");
+                <div className="flex flex-col items-center gap-4 w-full">
+                  <Input
+                    fullWidth
+                    placeholder="Role (e.g., React Developer):"
+                    value={role}
+                    onValueChange={setRole}
+                    isDisabled={isInputDisabled}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSendMessage();
                     }}
-                    startContent={<Icon icon="lucide:play" />}
                   />
+                    <div>
+                      <Button
+                        color="primary"
+                        size="lg"
+                        onPress={async () => {
+                          const first = await getFirstQuestion(role);
+                          setQuestion(first);
+                          setPreviousQuestion(first);
+                          setSelected("practice");
+                        }}
+                        startContent={<Icon icon="lucide:play" />}
+                      >
+                      Start Practice Session
+                    </Button>
+                  </div>
                 </div>
               </CardBody>
+      
             </Card>
           </Tab>
 
-          <Tab key="practice" title="Practice Session">
+          <Tab key="practice" title="Practice Session"  isDisabled={role == null}
+          >
             <Card>
               <CardHeader className="border-b border-divider">
                 <div className="w-full">
@@ -209,7 +225,7 @@ const AIInterviewPracticePage: React.FC = () => {
                   <div className="bg-content2 p-4 rounded-lg">
                     <h4 className="font-medium mb-2">Question:</h4>
                     <p className="text-lg">{question}</p>
-                    </div>
+                  </div>
 
                   <div className="space-y-2">
                     {responseHistory.map((resp, idx) => (
@@ -288,7 +304,7 @@ const AIInterviewPracticePage: React.FC = () => {
           </Tab>
         </Tabs>
       </div>
-    </div>
+    </div >
   );
 };
 

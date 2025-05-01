@@ -175,10 +175,12 @@ const CareerDetailsPage: React.FC = () => {
                       }
                       variant="flat"
                     >
-                      {skill}
-                      {careerPath.userSkills.includes(skill) && (
-                        <Icon icon="lucide:check" className="ml-1" style={{ fontSize: 14 }} />
-                      )}
+                      <div className="flex items-center">
+                        {skill}
+                        {careerPath.userSkills.includes(skill) && (
+                          <Icon icon="lucide:check" className="ml-1" style={{ fontSize: 14 }} />
+                        )}
+                      </div>
                     </Chip>
                   ))}
               </div>
@@ -213,17 +215,15 @@ const CareerDetailsPage: React.FC = () => {
                   <div key={index} className="ml-10 relative">
                     {/* Circle marker */}
                     <div
-                      className={`absolute -left-10 top-0 w-4 h-4 rounded-full ${
-                        index === 2
+                      className={`absolute -left-10 top-0 w-4 h-4 rounded-full ${index === 2
                           ? "bg-primary ring-4 ring-primary/20"
                           : "bg-primary/30"
-                      }`}
+                        }`}
                     ></div>
 
                     <div
-                      className={`border rounded-lg p-4 ${
-                        index === 2 ? "border-primary/30 bg-primary/5" : ""
-                      }`}
+                      className={`border rounded-lg p-4 ${index === 2 ? "border-primary/30 bg-primary/5" : ""
+                        }`}
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold">{level.title}</h3>
