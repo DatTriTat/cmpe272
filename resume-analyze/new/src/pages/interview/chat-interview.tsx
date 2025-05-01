@@ -11,7 +11,11 @@ import {
   Input,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { getFirstQuestion, getNextQuestion, getFeedback } from "../../utils/api"; 
+import {
+  getFirstQuestion,
+  getNextQuestion,
+  getFeedback,
+} from "../../utils/api"; 
 const AIInterviewPracticePage: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = React.useState(0);
   const [selected, setSelected] = React.useState("preparation");
@@ -47,7 +51,8 @@ const AIInterviewPracticePage: React.FC = () => {
 
   const handleNextQuestion = async () => {
     if (!question || responseHistory.length === 0) return;
-  
+    setCurrentQuestion((prev) => (prev + 1) % questions.length);
+
     const latestAnswer = responseHistory[responseHistory.length - 1];
     const next = await getNextQuestion(role, question, latestAnswer);
   
@@ -57,7 +62,6 @@ const AIInterviewPracticePage: React.FC = () => {
     setFeedback(null);
     setIsInputDisabled(false);
   };
-  
 
   const handlePreviousQuestion = () => {
     setCurrentQuestion(
