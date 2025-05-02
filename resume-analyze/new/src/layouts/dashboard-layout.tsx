@@ -43,6 +43,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       path: "/resume/analysis",
       icon: "lucide:file-text",
     },
+    {
+      name: "Jobs Search",
+      path: "/jobs",
+      icon: "lucide:briefcase",
+    },
   ];
 
   return (

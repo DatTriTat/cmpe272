@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 
 const CareerResultSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
+  uid: { type: String, required: true }, 
   results: [
     {
       title: { type: String, required: true },

@@ -12,19 +12,14 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 
-interface CareerDetailParams {
-  id: string;
-}
-
 const CareerDetailsPage: React.FC = () => {
   const { id } = useParams();
-  const careerPathId = parseInt(id as string || "1");
+  const careerPathId = parseInt((id as string) || "1");
 
   const stored = localStorage.getItem("careerSuggestions");
   const allPaths = stored ? JSON.parse(stored) : [];
   const careerPath = allPaths.find((p: any) => p.id === careerPathId);
   console.log("Looking for ID:", careerPath);
-
 
   const getScoreColor = (score: number) => {
     if (score >= 85) return "success";
@@ -178,7 +173,11 @@ const CareerDetailsPage: React.FC = () => {
                       <div className="flex items-center">
                         {skill}
                         {careerPath.userSkills.includes(skill) && (
-                          <Icon icon="lucide:check" className="ml-1" style={{ fontSize: 14 }} />
+                          <Icon
+                            icon="lucide:check"
+                            className="ml-1"
+                            style={{ fontSize: 14 }}
+                          />
                         )}
                       </div>
                     </Chip>
@@ -215,16 +214,11 @@ const CareerDetailsPage: React.FC = () => {
                   <div key={index} className="ml-10 relative">
                     {/* Circle marker */}
                     <div
-                      className={`absolute -left-10 top-0 w-4 h-4 rounded-full ${index === 2
-                          ? "bg-primary ring-4 ring-primary/20"
-                          : "bg-primary/30"
-                        }`}
+                      className={
+                        "absolute -left-10 top-0 w-4 h-4 rounded-full bg-primary/30"
+                      }
                     ></div>
-
-                    <div
-                      className={`border rounded-lg p-4 ${index === 2 ? "border-primary/30 bg-primary/5" : ""
-                        }`}
-                    >
+                    <div className={"border rounded-lg p-4 "}>
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold">{level.title}</h3>
                         <Chip size="sm" variant="flat">
@@ -290,7 +284,10 @@ const CareerDetailsPage: React.FC = () => {
                           color="primary"
                           variant="flat"
                           endContent={
-                            <Icon icon="lucide:external-link" style={{ fontSize: 14 }} />
+                            <Icon
+                              icon="lucide:external-link"
+                              style={{ fontSize: 14 }}
+                            />
                           }
                         >
                           Learn More
@@ -330,7 +327,10 @@ const CareerDetailsPage: React.FC = () => {
                               href={course.url}
                               target="_blank"
                               endContent={
-                                <Icon icon="lucide:external-link" style={{ fontSize: 14 }} />
+                                <Icon
+                                  icon="lucide:external-link"
+                                  style={{ fontSize: 14 }}
+                                />
                               }
                             >
                               View Course
@@ -344,18 +344,7 @@ const CareerDetailsPage: React.FC = () => {
           </CardBody>
         </Card>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-3">
-          <Button variant="flat" startContent={<Icon icon="lucide:share-2" />}>
-            Share
-          </Button>
-          <Button
-            color="primary"
-            startContent={<Icon icon="lucide:file-text" />}
-          >
-            Generate Career Plan
-          </Button>
-        </div>
+
       </div>
     </div>
   );

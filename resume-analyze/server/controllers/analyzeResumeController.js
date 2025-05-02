@@ -10,10 +10,8 @@ import User from "../models/User.js";
 
 export const analyzeResumeController = async (req, res) => {
   try {
-    const file = req.file; // Assuming the file is sent as a buffer in the request body
+    const file = req.file; 
     const analysisResult = await analyzeResumeService(file);
-
-    console.log("Analysis Result:", analysisResult);
     res.json({
       success: true,
       analysis: analysisResult,

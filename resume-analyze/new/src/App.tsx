@@ -12,7 +12,6 @@ import UploadResumePage from './pages/resume/upload';
 import ResumeAnalysisPage from './pages/resume/analysis';
 import DashboardPage from './pages/dashboard';
 import JobsPage from './pages/jobs';
-import JobSuggestionPage from './pages/jobs/suggestions';
 import CareerPathsPage from './pages/career-paths';
 import CareerDetailsPage from './pages/career-paths/career-details';
 
@@ -93,13 +92,6 @@ const App: React.FC = () => {
           <ProtectedRoute>
             <DashboardLayout>
               <ResumeAnalysisPage />
-            </DashboardLayout>
-          </ProtectedRoute>
-        } />
-        <Route path="/jobs/suggestions" element={
-          <ProtectedRoute>
-            <DashboardLayout>
-              <JobSuggestionPage />
             </DashboardLayout>
           </ProtectedRoute>
         } />

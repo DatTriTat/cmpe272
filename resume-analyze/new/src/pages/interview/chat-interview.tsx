@@ -182,14 +182,14 @@ const AIInterviewPracticePage: React.FC = () => {
                         desc: "Clarity, relevance, and structure of your answers",
                       },
                       {
-                        icon: "lucide:mic",
-                        title: "Delivery",
-                        desc: "Tone, pace, and clarity of written expression",
+                        icon: "lucide:pen-line",
+                        title: "Clarity",
+                        desc: "Grammar, tone, and how clearly you express ideas",
                       },
                       {
-                        icon: "lucide:video",
+                        icon: "lucide:blocks",
                         title: "Structure",
-                        desc: "Logical flow and completeness of your thoughts",
+                        desc: "Logical flow and completeness of your response",
                       },
                     ].map((item, idx) => (
                       <Card key={idx}>

@@ -1,5 +1,8 @@
 import User from "../models/User.js";
-
+import {
+  saveCareerResultService,
+  getCareerResultsByUserService,
+} from "../services/careerService.js";
 export async function updateProfile(req, res) {
   try {
     const uid = req.user.uid;
@@ -39,7 +42,7 @@ export async function updateProfile(req, res) {
           "profile.educations": educations || [],
         },
       },
-      { new: true } 
+      { new: true }
     );
 
     if (!updatedUser) {
@@ -47,9 +50,35 @@ export async function updateProfile(req, res) {
     }
 
     return res.json(updatedUser);
-
   } catch (err) {
     console.error("Profile update failed:", err);
     return res.status(500).json({ error: "Server error" });
   }
 }
+
+export const saveCareerResult = async (req, res) => {
+  const uid = req.user.uid;
+  const { results } = req.body;
+  if (!uid || !Array.isArray(results)) {
+    return res.status(400).json({ error: "uid and results are required." });
+  }
+
+  try {
+    await saveCareerResultService(uid, results);
+    res.status(201).json({ message: "Career result saved." });
+  } catch (err) {
+    console.error("Save failed:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const getCareerResultsByUser = async (req, res) => {
+  const uid = req.user.uid;
+  try {
+    const data = await getCareerResultsByUserService(uid);
+    res.json(data);
+  } catch (err) {
+    console.error("Fetch failed:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

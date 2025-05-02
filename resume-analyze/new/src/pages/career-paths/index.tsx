@@ -54,21 +54,28 @@ const CareerPathsPage: React.FC = () => {
   const [selected, setSelected] = React.useState("best-match");
   const [selectedCategory, setSelectedCategory] =
     React.useState("All Categories");
-  const [selectedLevel, setSelectedLevel] = React.useState("All Levels");
   const navigate = useNavigate();
   const [careerPaths, setCareerPaths] = React.useState<CareerPath[]>([]);
+  const [categoryList, setCategoryList] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     try {
       const stored = localStorage.getItem("careerSuggestions");
-
       if (stored) {
         const parsed = JSON.parse(stored);
+        console.log("Stored career suggestions:", parsed);
 
         if (Array.isArray(parsed)) {
           setCareerPaths(parsed);
+          const dynamicCategories = parsed
+          .map((item: CareerPath) => item.category)
+          .filter(Boolean);
+
+        const uniqueCategories = Array.from(new Set(dynamicCategories)).sort();
+        setCategoryList(["All Categories", ...uniqueCategories]);
         } else {
           setCareerPaths([]);
+          setCategoryList([]);
         }
       }
     } catch (err) {
@@ -77,17 +84,7 @@ const CareerPathsPage: React.FC = () => {
     }
   }, []);
 
-  const categories = [
-    "All Categories",
-    "Web Development",
-    "Data Science",
-    "Design",
-    "DevOps",
-    "Product",
-    "Marketing",
-    "Mobile Development",
-  ];
-  const levels = ["All Levels", "Entry Level", "Mid Level", "Senior Level"];
+
 
   const getScoreColor = (score: number) => {
     if (score >= 85) return "success";
@@ -105,15 +102,9 @@ const CareerPathsPage: React.FC = () => {
     const matchesCategory =
       selectedCategory === "All Categories" ||
       path.category === selectedCategory;
-    const matchesLevel =
-      selectedLevel === "All Levels" ||
-      (selectedLevel === "Entry Level" && path.matchScore >= 80) ||
-      (selectedLevel === "Mid Level" &&
-        path.matchScore >= 70 &&
-        path.matchScore < 80) ||
-      (selectedLevel === "Senior Level" && path.matchScore < 70);
+    
 
-    return matchesCategory && matchesLevel;
+    return matchesCategory ;
   });
 
   const sortedPaths = [...filteredPaths].sort((a, b) => {
@@ -129,6 +120,26 @@ const CareerPathsPage: React.FC = () => {
     return bGrowth - aGrowth;
   });
 
+  const handleSavePath = (path: CareerPath) => {
+    const saved = localStorage.getItem("savedCareerPaths");
+    let savedList: CareerPath[] = [];
+  
+    if (saved) {
+      try {
+        savedList = JSON.parse(saved);
+      } catch {
+        savedList = [];
+      }
+    }
+  
+    // Kiểm tra trùng ID
+    const alreadySaved = savedList.some((p) => p.id === path.id);
+    if (!alreadySaved) {
+      const updatedList = [...savedList, path];
+      localStorage.setItem("savedCareerPaths", JSON.stringify(updatedList));
+    }
+  };
+  
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col gap-6">
@@ -145,9 +156,11 @@ const CareerPathsPage: React.FC = () => {
             </Button>
             <Button
               color="primary"
-              startContent={<Icon icon="lucide:compass" />}
+              as={Link}
+              to="/interview/chat"
+              startContent={<Icon icon="lucide:message-circle" />}
             >
-              Career Assessment
+              Interview
             </Button>
           </div>
         </div>
@@ -184,32 +197,13 @@ const CareerPathsPage: React.FC = () => {
                     selectedKeys={[selectedCategory]}
                     selectionMode="single"
                   >
-                    {categories.map((category) => (
+                    {categoryList.map((category) => (
                       <DropdownItem key={category}>{category}</DropdownItem>
                     ))}
                   </DropdownMenu>
                 </Dropdown>
 
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button
-                      variant="bordered"
-                      endContent={<Icon icon="lucide:chevron-down" width={16} height={16} />}
-                    >
-                      {selectedLevel}
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    aria-label="Level filter"
-                    onAction={(key) => setSelectedLevel(key as string)}
-                    selectedKeys={[selectedLevel]}
-                    selectionMode="single"
-                  >
-                    {levels.map((level) => (
-                      <DropdownItem key={level}>{level}</DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </Dropdown>
+                
               </div>
             </div>
           </CardBody>
@@ -436,6 +430,8 @@ const CareerPathsPage: React.FC = () => {
                     <Button
                       variant="flat"
                       startContent={<Icon icon="lucide:bookmark" />}
+                      onPress={() => handleSavePath(path)}
+
                     >
                       Save Path
                     </Button>
@@ -471,7 +467,6 @@ const CareerPathsPage: React.FC = () => {
                     color="primary"
                     onPress={() => {
                       setSelectedCategory("All Categories");
-                      setSelectedLevel("All Levels");
                     }}
                   >
                     Reset Filters

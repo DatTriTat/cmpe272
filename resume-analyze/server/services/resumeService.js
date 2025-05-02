@@ -50,9 +50,9 @@ export const analyzeResumeService = async (file) => {
     - Do not wrap the response in triple backticks.
     
     Resume:
-    ${JSON.stringify(data)}
+    ${data.rawText}
     `;
-
+  console.log("Prompt for OpenAI:", prompt);
     const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
     const completion = await openai.chat.completions.create({
@@ -86,7 +86,7 @@ export async function mapResumeToProfile(file) {
         .join(" ") || "",
     jobTitle: data.profession || "",
     phone: data.phoneNumbers?.[0] || "",
-    location: data.location?.text || "",
+    location: data.location?.formatted || "",
     summary: data.summary || "",
     objective: data.objective || "",
     desiredRole: data.jobTitle || "",
@@ -102,7 +102,7 @@ export async function mapResumeToProfile(file) {
     experiences: (data.workExperience || []).map((exp) => ({
       company: exp.organization,
       position: exp.jobTitle,
-      location: exp.location?.text || "",
+      location: exp.location?.formatted || "",
       startDate: exp.dates?.startDate || "",
       endDate: exp.dates?.endDate || "",
       current: exp.dates?.endDate === null,
@@ -110,10 +110,10 @@ export async function mapResumeToProfile(file) {
     })),
 
     educations: (data.education || []).map((edu) => ({
-      school: edu.institution,
+      school: edu.organization,
       degree: edu.accreditation?.education || "",
       field: edu.accreditation?.inputStr || "",
-      location: edu.location?.text || "",
+      location: edu.location?.formatted || "",
       startDate: edu.dates?.startDate || edu.dates?.completionDate || "",
       endDate: edu.dates?.completionDate || "",
       current: edu.dates?.isCurrent || false,

@@ -3,6 +3,7 @@ import fs from "fs";
 import csv from "csv-parser";
 import { getCoursesForSkillsToolFn } from "./courseService.js";
 import { jsonrepair } from "jsonrepair";
+import CareerResult from "../models/CareerResult.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -85,7 +86,7 @@ export async function analyzeCareerFromProfile(
           path: "embedding",
           queryVector: queryEmbedding,
           numCandidates: 100,
-          limit: 1,
+          limit: 10,
         },
       },
       {
@@ -101,7 +102,7 @@ export async function analyzeCareerFromProfile(
   You are a career assistant AI specialized in resume analysis and career matching.
   Your task is to analyze a user's resume and matched job data, then suggest career paths.
   
-  You are an expert and must return a list of up to 1 career suggestions in **valid JSON format**.
+  You are an expert and must return a list of up to 5 career suggestions in **valid JSON format**.
   Each object must strictly follow this structure:
   
   {
@@ -211,3 +212,18 @@ export async function analyzeCareerFromProfile(
   return enriched;
 }
 
+export const saveCareerResultService = async (uid, newResults) => {
+  const updatedDoc = await CareerResult.findOneAndUpdate(
+    { uid },                        
+    { $set: { results: newResults } }, 
+    {
+      upsert: true,               
+      new: true,                   
+      setDefaultsOnInsert: true, 
+    }
+  );
+  return updatedDoc;
+};
+export const getCareerResultsByUserService = async (uid) => {
+  return await CareerResult.find({ uid }).sort({ createdAt: -1 });
+};

@@ -46,6 +46,8 @@ const UserProfilePage: React.FC = () => {
     workType: "",
     availability: "",
   });
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+
   useEffect(() => {
     if (user?.profile) {
       setBasicInfo({
@@ -96,6 +98,8 @@ const UserProfilePage: React.FC = () => {
       experiences,
       educations,
     };
+    setIsLoadingSuggestions(true);
+
     try {
       await saveUserProfile(user.token, profile, setUser);
       const suggestions = await fetchCareerSuggestions(user.token);
@@ -115,6 +119,8 @@ const UserProfilePage: React.FC = () => {
     } catch (err) {
       setText("Failed to fetch career suggestions.");
       setShowAlert(true);
+    } finally {
+      setIsLoadingSuggestions(false); 
     }
   };
 
@@ -128,6 +134,8 @@ const UserProfilePage: React.FC = () => {
               color="primary"
               startContent={<Icon icon="heroicons:light-bulb" />}
               onPress={handleGetCareerSuggestions}
+              isLoading={isLoadingSuggestions}
+
             >
               Career Suggestions
             </Button>
