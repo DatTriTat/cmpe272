@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardBody,
@@ -15,7 +15,8 @@ import {
 } from "@heroui/react";
 import { Link } from "react-router-dom";
 import { Icon } from "@iconify/react";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { saveCareerResults } from "../../utils/api";
 
 interface CareerPath {
   id: number;
@@ -51,40 +52,50 @@ interface CareerPath {
 }
 
 const CareerPathsPage: React.FC = () => {
-  const [selected, setSelected] = React.useState("best-match");
-  const [selectedCategory, setSelectedCategory] =
-    React.useState("All Categories");
-  const navigate = useNavigate();
-  const [careerPaths, setCareerPaths] = React.useState<CareerPath[]>([]);
-  const [categoryList, setCategoryList] = React.useState<string[]>([]);
+  const [selected, setSelected] = useState("best-match");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [careerPaths, setCareerPaths] = useState<CareerPath[]>([]);
+  const [categoryList, setCategoryList] = useState<string[]>([]);
+  const { user } = useAuth();
+  const [savedIds, setSavedIds] = useState<number[]>([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     try {
-      const stored = localStorage.getItem("careerSuggestions");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        console.log("Stored career suggestions:", parsed);
-
-        if (Array.isArray(parsed)) {
-          setCareerPaths(parsed);
-          const dynamicCategories = parsed
-          .map((item: CareerPath) => item.category)
-          .filter(Boolean);
-
-        const uniqueCategories = Array.from(new Set(dynamicCategories)).sort();
-        setCategoryList(["All Categories", ...uniqueCategories]);
-        } else {
-          setCareerPaths([]);
-          setCategoryList([]);
-        }
-      }
+      const storedSuggestions = localStorage.getItem("careerSuggestions");
+      const storedBookmarks = localStorage.getItem("savedCareerPaths");
+  
+      const parsedSuggestions: CareerPath[] = storedSuggestions
+        ? JSON.parse(storedSuggestions)
+        : [];
+      const parsedBookmarks: CareerPath[] = storedBookmarks
+        ? JSON.parse(storedBookmarks)
+        : [];
+  
+      const bookmarkedIds = parsedBookmarks.map((p) => p.id);
+  
+      const enrichedSuggestions = parsedSuggestions.map((item) => ({
+        ...item,
+        saved: bookmarkedIds.includes(item.id),
+      }));
+  
+      setCareerPaths(enrichedSuggestions);
+      setSavedIds(bookmarkedIds); 
+  
+      const dynamicCategories = enrichedSuggestions
+        .map((item) => item.category)
+        .filter(Boolean);
+  
+      const uniqueCategories = Array.from(new Set(dynamicCategories)).sort();
+      setCategoryList(["All Categories", ...uniqueCategories]);
     } catch (err) {
-      console.error("Failed to parse careerSuggestions:", err);
+      console.error("Failed to parse localStorage data:", err);
       setCareerPaths([]);
+      setSavedIds([]);
+      setCategoryList([]);
     }
   }, []);
-
-
+  
+  
 
   const getScoreColor = (score: number) => {
     if (score >= 85) return "success";
@@ -102,9 +113,8 @@ const CareerPathsPage: React.FC = () => {
     const matchesCategory =
       selectedCategory === "All Categories" ||
       path.category === selectedCategory;
-    
 
-    return matchesCategory ;
+    return matchesCategory;
   });
 
   const sortedPaths = [...filteredPaths].sort((a, b) => {
@@ -120,23 +130,30 @@ const CareerPathsPage: React.FC = () => {
     return bGrowth - aGrowth;
   });
 
-  const handleSavePath = (path: CareerPath) => {
-    const saved = localStorage.getItem("savedCareerPaths");
-    let savedList: CareerPath[] = [];
+  const handleSavePath = async (path: CareerPath) => {
+    try {
+      if (!user?.token) throw new Error("No token found");
   
-    if (saved) {
-      try {
-        savedList = JSON.parse(saved);
-      } catch {
-        savedList = [];
+      const stored = localStorage.getItem("savedCareerPaths");
+      const saved = stored ? JSON.parse(stored) : [];
+  
+      const exists = saved.some((p: CareerPath) => p.id === path.id);
+      if (exists) {
+        console.log("Already saved in localStorage → skipping backend call");
+        return;
       }
-    }
   
-    // Kiểm tra trùng ID
-    const alreadySaved = savedList.some((p) => p.id === path.id);
-    if (!alreadySaved) {
-      const updatedList = [...savedList, path];
-      localStorage.setItem("savedCareerPaths", JSON.stringify(updatedList));
+      await saveCareerResults(user.token, [path]);
+      console.log("✅ Saved to backend");
+  
+      const updated = [...saved, path];
+      localStorage.setItem("savedCareerPaths", JSON.stringify(updated));
+  
+      setSavedIds((prev) => [...prev, path.id]);
+  
+      console.log("Added to localStorage and updated state");
+    } catch (err: any) {
+      console.error("Failed to save career path:", err.message);
     }
   };
   
@@ -186,7 +203,13 @@ const CareerPathsPage: React.FC = () => {
                   <DropdownTrigger>
                     <Button
                       variant="bordered"
-                      endContent={<Icon icon="lucide:chevron-down" width={16} height={16} />}
+                      endContent={
+                        <Icon
+                          icon="lucide:chevron-down"
+                          width={16}
+                          height={16}
+                        />
+                      }
                     >
                       {selectedCategory}
                     </Button>
@@ -202,8 +225,6 @@ const CareerPathsPage: React.FC = () => {
                     ))}
                   </DropdownMenu>
                 </Dropdown>
-
-                
               </div>
             </div>
           </CardBody>
@@ -315,8 +336,8 @@ const CareerPathsPage: React.FC = () => {
                                 width={12}
                                 height={12}
                               />
-
-                            )} </div>
+                            )}{" "}
+                          </div>
                         </Chip>
                       ))}
                     </div>
@@ -372,7 +393,11 @@ const CareerPathsPage: React.FC = () => {
                                 color="primary"
                                 className="mt-2"
                                 endContent={
-                                  <Icon icon="lucide:external-link" width={14} height={14} />
+                                  <Icon
+                                    icon="lucide:external-link"
+                                    width={14}
+                                    height={14}
+                                  />
                                 }
                                 as="a"
                                 href={cert.url}
@@ -429,12 +454,13 @@ const CareerPathsPage: React.FC = () => {
                   <div className="flex justify-end gap-2 mt-2">
                     <Button
                       variant="flat"
+                      color={savedIds.includes(path.id) ? "success" : "default"}
                       startContent={<Icon icon="lucide:bookmark" />}
                       onPress={() => handleSavePath(path)}
-
                     >
-                      Save Path
+                      {savedIds.includes(path.id) ? "Saved" : "Save Path"}
                     </Button>
+
                     <Button
                       color="primary"
                       startContent={<Icon icon="lucide:map" />}

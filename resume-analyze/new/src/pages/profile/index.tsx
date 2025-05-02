@@ -103,6 +103,8 @@ const UserProfilePage: React.FC = () => {
     try {
       await saveUserProfile(user.token, profile, setUser);
       const suggestions = await fetchCareerSuggestions(user.token);
+      localStorage.removeItem("savedCareerPaths");
+
       if (!suggestions) {
         setText("No career suggestions found.");
         setShowAlert(true);

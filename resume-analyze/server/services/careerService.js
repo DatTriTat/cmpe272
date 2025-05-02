@@ -212,18 +212,20 @@ export async function analyzeCareerFromProfile(
   return enriched;
 }
 
-export const saveCareerResultService = async (uid, newResults) => {
+export const saveCareerResultService = async (uid, newPath) => {
   const updatedDoc = await CareerResult.findOneAndUpdate(
-    { uid },                        
-    { $set: { results: newResults } }, 
+    { uid },
+    { $push: { results: newPath } }, 
     {
-      upsert: true,               
-      new: true,                   
+      upsert: true,                
+      new: true,                
       setDefaultsOnInsert: true, 
     }
   );
+
   return updatedDoc;
 };
+
 export const getCareerResultsByUserService = async (uid) => {
   return await CareerResult.find({ uid }).sort({ createdAt: -1 });
 };

@@ -102,7 +102,6 @@ export async function getFeedback(
   return data.feedback;
 }
 
-
 // utils/api.ts
 export async function saveInterviewSession(
   role: string,
@@ -117,7 +116,7 @@ export async function saveInterviewSession(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${idToken}`, 
+      Authorization: `Bearer ${idToken}`,
     },
     body: JSON.stringify({ role, questions }),
   });
@@ -127,7 +126,7 @@ export async function saveInterviewSession(
     throw new Error(error.message || "Failed to save session");
   }
 
-  return response.json(); 
+  return response.json();
 }
 
 export async function getInterviewHistory(idToken: string) {
@@ -171,11 +170,42 @@ export async function fetchJobsFromBackend(query: JobQuery): Promise<Job[]> {
   const params = new URLSearchParams();
   if (query.title) params.append("title", query.title);
   if (query.location) params.append("location", query.location);
-  
-  const response = await fetch(`http://localhost:3000/api/jobs/search?${params.toString()}`);
-console.log("API URL:", `http://localhost:3000/api/jobs/search?${params.toString()}`);
+
+  const response = await fetch(
+    `http://localhost:3000/api/jobs/search?${params.toString()}`
+  );
   const data = await response.json();
   if (!response.ok) throw new Error("Failed to fetch jobs");
   return data;
 }
 
+export async function saveCareerResults(token: string, results: any[]) {
+  const res = await fetch(`${BASE_URL}/api/career-results`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ results }),
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to save career results: ${errorText}`);
+  }
+  return await res.json();
+}
+
+export async function getCareerResults(token: string) {
+  const res = await fetch(`${BASE_URL}/api/career-results`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to fetch career results: ${errorText}`);
+  }
+
+  return await res.json();
+}
