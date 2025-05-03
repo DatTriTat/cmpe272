@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: server-container
-          image: gcr.io/cmpe202-456801/serverNodeJs:v0.1
+          image: gcr.io/cmpe202-456801/servernodejs:v0.1
           ports:
             - containerPort: 3000
           env:

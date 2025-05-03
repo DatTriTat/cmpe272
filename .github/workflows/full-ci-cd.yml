@@ -8,14 +8,47 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-deploy:
+  # ==== Build job for CI testing ====
+  build-only:
     runs-on: ubuntu-latest
+    name: Build & Test Only (no deploy)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Inject frontend .env
+        run: echo "${{ secrets.FRONTEND_ENV }}" > ./resume-analyze/frontend/.env
+
+      - name: Build frontend
+        run: |
+          cd resume-analyze/frontend
+          npm ci
+          npm run build
+
+      - name: Build backend
+        run: |
+          cd resume-analyze/server
+          npm ci
+          npm run build || true
+
+  # ==== Only run this if it's a RELEASE ====
+  release-deploy:
+    runs-on: ubuntu-latest
+    name: Build & Deploy to GCP
+    if: github.event_name == 'release'
+    needs: build-only
 
     env:
       PROJECT_ID: cmpe202-456801
-      CLUSTER_NAME: cmpe202
+      CLUSTER_NAME: cmpe272
       CLUSTER_ZONE: us-central1
-      BACKEND_IMAGE: gcr.io/cmpe202-456801/serverNodeJs
+      BACKEND_IMAGE: gcr.io/cmpe202-456801/servernodejs
       FRONTEND_IMAGE: gcr.io/cmpe202-456801/frontend
 
     steps:
@@ -27,7 +60,11 @@ jobs:
         with:
           node-version: 20
 
-      # ===== FRONTEND =====
+      - name: Extract GitHub Release Tag
+        id: release_tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      # ===== Build frontend again for image (with env) =====
       - name: Inject frontend .env
         run: echo "${{ secrets.FRONTEND_ENV }}" > ./resume-analyze/frontend/.env
 
@@ -37,7 +74,6 @@ jobs:
           npm ci
           npm run build
 
-      # ===== BACKEND =====
       - name: Build backend
         run: |
           cd resume-analyze/server
@@ -50,10 +86,6 @@ jobs:
 
       - name: Docker auth
         run: cat /tmp/key.json | docker login -u _json_key --password-stdin https://gcr.io
-
-      - name: Extract Release Tag
-        id: release_tag
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker images
         run: |
@@ -73,6 +105,10 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin --quiet
+            
       - name: Configure kubectl
         run: |
           gcloud container clusters get-credentials $CLUSTER_NAME \
@@ -111,8 +147,8 @@ jobs:
           kubectl set image deployment/frontend frontend-container=$FRONTEND_IMAGE:${{ steps.release_tag.outputs.VERSION }}
           kubectl rollout status deployment/frontend
 
-      # ===== Apply service (optional) =====
-      - name: Apply service + autoscaler
+      # ===== Apply services =====
+      - name: Apply service 
         run: |
           kubectl apply -f resume-analyze/k8s/server-service.yaml
           kubectl apply -f resume-analyze/k8s/frontend-service.yaml

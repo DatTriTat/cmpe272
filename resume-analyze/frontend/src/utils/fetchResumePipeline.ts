@@ -47,7 +47,7 @@ export async function uploadResumeToMapProfile(file: File, token?: string) {
   formData.append("file", file);
 
   try {
-    const res = await fetch("http://localhost:3000/api/profile/map", {
+    const res = await fetch(`${BASE_URL}/api/profile/map`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

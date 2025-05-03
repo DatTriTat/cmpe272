@@ -172,7 +172,7 @@ export async function fetchJobsFromBackend(query: JobQuery): Promise<Job[]> {
   if (query.location) params.append("location", query.location);
 
   const response = await fetch(
-    `http://localhost:3000/api/jobs/search?${params.toString()}`
+    `${BASE_URL}/api/jobs/search?${params.toString()}`
   );
   const data = await response.json();
   if (!response.ok) throw new Error("Failed to fetch jobs");
