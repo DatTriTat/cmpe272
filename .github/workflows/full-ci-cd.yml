@@ -1,0 +1,118 @@
+name: Full CI/CD - React (Vite) + Express (serverNodeJs)
+
+on:
+  push:
+    branches: ["main"]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: cmpe202-456801
+      CLUSTER_NAME: cmpe202
+      CLUSTER_ZONE: us-central1
+      BACKEND_IMAGE: gcr.io/cmpe202-456801/serverNodeJs
+      FRONTEND_IMAGE: gcr.io/cmpe202-456801/frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # ===== FRONTEND =====
+      - name: Inject frontend .env
+        run: echo "${{ secrets.FRONTEND_ENV }}" > ./resume-analyze/frontend/.env
+
+      - name: Build frontend
+        run: |
+          cd resume-analyze/frontend
+          npm ci
+          npm run build
+
+      # ===== BACKEND =====
+      - name: Build backend
+        run: |
+          cd resume-analyze/server
+          npm ci
+          npm run build || true
+
+      # ===== Docker login + build + push =====
+      - name: Write GCP credentials to file
+        run: echo '${{ secrets.GCP_CREDENTIALS }}' > /tmp/key.json
+
+      - name: Docker auth
+        run: cat /tmp/key.json | docker login -u _json_key --password-stdin https://gcr.io
+
+      - name: Extract Release Tag
+        id: release_tag
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker images
+        run: |
+          docker build -t $BACKEND_IMAGE:${{ steps.release_tag.outputs.VERSION }} resume-analyze/server
+          docker build -t $FRONTEND_IMAGE:${{ steps.release_tag.outputs.VERSION }} resume-analyze/frontend
+          docker push $BACKEND_IMAGE:${{ steps.release_tag.outputs.VERSION }}
+          docker push $FRONTEND_IMAGE:${{ steps.release_tag.outputs.VERSION }}
+
+      # ===== GKE Deploy =====
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure kubectl
+        run: |
+          gcloud container clusters get-credentials $CLUSTER_NAME \
+            --zone $CLUSTER_ZONE \
+            --project $PROJECT_ID
+
+      # ===== Backend env secret =====
+      - name: Create backend-secret
+        run: |
+          kubectl delete secret backend-secret --ignore-not-found
+          kubectl create secret generic backend-secret \
+            --from-literal=MONGODB_URI="${{ secrets.MONGODB_URI }}" \
+            --from-literal=MONGO_DB_NAME="${{ secrets.MONGO_DB_NAME }}" \
+            --from-literal=OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            --from-literal=AFFINDA_API_KEY="${{ secrets.AFFINDA_API_KEY }}" \
+            --from-literal=AFFINDA_WORKSPACE_ID="${{ secrets.AFFINDA_WORKSPACE_ID }}" \
+            --from-literal=APIFY_API_KEY="${{ secrets.APIFY_API_KEY }}" \
+            --from-literal=RAPIDAPI_KEY="${{ secrets.RAPIDAPI_KEY }}"
+
+      # ===== Firebase secret (admin SDK json) =====
+      - name: Create firebase-adminsdk-key
+        run: |
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > serviceAccountKey.json
+          kubectl delete secret firebase-adminsdk-key --ignore-not-found
+          kubectl create secret generic firebase-adminsdk-key \
+            --from-file=serviceAccountKey.json
+
+      # ===== Update Deployments =====
+      - name: Update backend image
+        run: |
+          kubectl set image deployment/server server-container=$BACKEND_IMAGE:${{ steps.release_tag.outputs.VERSION }}
+          kubectl rollout status deployment/server
+
+      - name: Update frontend image
+        run: |
+          kubectl set image deployment/frontend frontend-container=$FRONTEND_IMAGE:${{ steps.release_tag.outputs.VERSION }}
+          kubectl rollout status deployment/frontend
+
+      # ===== Apply service (optional) =====
+      - name: Apply service + autoscaler
+        run: |
+          kubectl apply -f resume-analyze/k8s/server-service.yaml
+          kubectl apply -f resume-analyze/k8s/frontend-service.yaml

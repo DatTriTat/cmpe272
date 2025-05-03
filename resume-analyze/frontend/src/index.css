@@ -1,16 +1,31 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-:root {
- 
-  height: 100%;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+body {
+  font-family: 'Inter', sans-serif;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+.chat-bubble {
+  position: relative;
+  padding: 1rem;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+  max-width: 80%;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+.chat-bubble-user {
+  background-color: #0072f5;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 0;
+}
+
+.chat-bubble-ai {
+  background-color: #f1f3f5;
+  color: #11181c;
+  margin-right: auto;
+  border-bottom-left-radius: 0;
 }
