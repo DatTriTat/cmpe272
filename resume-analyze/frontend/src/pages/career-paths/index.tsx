@@ -169,6 +169,7 @@ const CareerPathsPage: React.FC = () => {
       console.error("Failed to save career path:", err.message);
     }
   };
+  const normalize = (s: string) => s.toLowerCase().trim();
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -313,53 +314,70 @@ const CareerPathsPage: React.FC = () => {
                   {/* Skills Section */}
                   <div>
                     <h3 className="font-medium mb-3">Skills Assessment</h3>
+
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm">Skills Match</span>
                       <span className="text-sm text-default-500">
-                        {path.userSkills.length} of {path.requiredSkills.length}{" "}
-                        required skills
+                        {
+                          path.requiredSkills.filter((req) =>
+                            path.userSkills.some(
+                              (user) => normalize(user) === normalize(req)
+                            )
+                          ).length
+                        }{" "}
+                        of {path.requiredSkills.length} required skills
                       </span>
                     </div>
                     <Progress
                       value={
-                        (path.userSkills.length / path.requiredSkills.length) *
+                        (path.requiredSkills.filter((req) =>
+                          path.userSkills.some(
+                            (user) => normalize(user) === normalize(req)
+                          )
+                        ).length /
+                          path.requiredSkills.length) *
                         100
                       }
                       color={
                         getSkillMatchColor(
-                          path.userSkills.length,
+                          path.requiredSkills.filter((req) =>
+                            path.userSkills.some(
+                              (user) => normalize(user) === normalize(req)
+                            )
+                          ).length,
                           path.requiredSkills.length
                         ) as any
                       }
                       className="mb-3"
                       aria-label="Skills match progress"
-
                     />
+
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {path.requiredSkills.map((skill) => (
-                        <Chip
-                          key={skill}
-                          color={
-                            path.userSkills.includes(skill)
-                              ? "success"
-                              : "default"
-                          }
-                          variant="flat"
-                          size="sm"
-                        >
-                          <div className="flex items-center">
-                            {skill}
-                            {path.userSkills.includes(skill) && (
-                              <Icon
-                                icon="lucide:check"
-                                className="ml-1"
-                                width={12}
-                                height={12}
-                              />
-                            )}{" "}
-                          </div>
-                        </Chip>
-                      ))}
+                      {path.requiredSkills.map((skill) => {
+                        const isMatched = path.userSkills.some(
+                          (user) => normalize(user) === normalize(skill)
+                        );
+                        return (
+                          <Chip
+                            key={skill}
+                            color={isMatched ? "success" : "default"}
+                            variant="flat"
+                            size="sm"
+                          >
+                            <div className="flex items-center">
+                              {skill}
+                              {isMatched && (
+                                <Icon
+                                  icon="lucide:check"
+                                  className="ml-1"
+                                  width={12}
+                                  height={12}
+                                />
+                              )}
+                            </div>
+                          </Chip>
+                        );
+                      })}
                     </div>
                     <div className="mt-2">
                       <p className="text-sm text-default-500 mb-2">

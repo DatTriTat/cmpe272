@@ -396,7 +396,7 @@ const AIInterviewPracticePage: React.FC = () => {
                               questions: session.questions,
                             });
                             setRole(session.role);
-                            setSelected("practice");
+                            setSelected("preparation");
                             setCurrentQuestion(0);
                             setIsInputDisabled(true);
                             setQuestions(session.questions);
