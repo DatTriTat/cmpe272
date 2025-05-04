@@ -27,10 +27,7 @@ const SignInPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const idToken = await firebaseLogin(email, password);
-      console.log("Login success, idToken:", idToken);
-
-      const res = await verifyIdToken(idToken);
+      await firebaseLogin(email, password);
       navigate("/profile");
     } catch (error: any) {
       console.error("Login error:", error.message);
@@ -43,15 +40,15 @@ const SignInPage: React.FC = () => {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      const idToken = await firebaseGoogleLogin();
-      console.log("Google login success, idToken:", idToken);
-
-      const res = await verifyIdToken(idToken);
-
+      await firebaseGoogleLogin();
       navigate("/profile");
     } catch (error: any) {
-      console.error("Google login error:", error.message);
-      alert("Google login failed.");
+      if (error.code === "auth/popup-closed-by-user") {
+        console.log("Google sign-in popup was closed by user.");
+        return; 
+      } else {
+        alert("Google login failed.");
+      }
     } finally {
       setLoading(false);
     }
