@@ -25,11 +25,11 @@ export async function fetchTopUdemyCourses(keyword) {
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
 
     // Return course data
-    return items.map(course => ({
-      title: course.title,
-      url: course.url,
-      rating: course.rating,
-      price: course.price_detail?.price_string || 'N/A'
+    return items.map((course) => ({
+      name: course.title || "Untitled",
+      provider: "Udemy",
+      duration: course.content_info || "N/A",
+      url: course.url || "#",
     }));
   } catch (error) {
     console.error("Apify scraping error:", error.message);
