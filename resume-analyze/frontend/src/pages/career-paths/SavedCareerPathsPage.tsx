@@ -103,7 +103,7 @@ const SavedCareerPathsPage: React.FC = () => {
       }
     }
     loadData();
-  }, [user?.token]);
+  }, []);
 
   const filteredPaths = savedPaths.filter((path) => {
     return (
