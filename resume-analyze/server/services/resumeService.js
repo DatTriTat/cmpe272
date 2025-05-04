@@ -4,76 +4,98 @@ import { parseResume } from "../utils/parseResume.js";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-export const analyzeResumeService = async (file) => {
-    const data = await parseResume(file);
+export const analyzeResumeService = async (file, jobUrl = null) => {
+  const data = await parseResume(file);
 
-    const prompt = `
-    You are a resume evaluation assistant.
-    
-    Given the following parsed resume (extracted using Affinda), return a JSON object with all of the following:
-    
-    {
-      "overallScore": number (0-100),
-      "formatScore": number (0-100),
-      "contentScore": number (0-100),
-      "skillsScore": number (0-100),
-      "atsScore": number (0-100),
-      "grammarScore": number (0-100),
-    
-      "keyFindings": {
-        "strengths": [string],
-        "areasToImprove": [string],
-        "criticalIssues": [string]
-      },
-    
-      "improvementSuggestions": {
-        "content": [string],
-        "format": [string],
-        "atsOptimization": [string]
-      },
-    
-      "atsCompatibilityDetails": {
-        "score": number (0-100),
-        "issues": [
-          {
-            "title": string,
-            "description": string,
-            "fix": string
-          }
-        ]
+  const prompt = `
+  You are a resume evaluation assistant.
+
+  Given the following parsed resume (extracted using Affinda)${jobUrl ? " and the job description provided at the URL" : ""}, return a JSON object with all of the following:
+
+  {
+    "overallScore": number (0-100),
+    "formatScore": number (0-100),
+    "contentScore": number (0-100),
+    "skillsScore": number (0-100),
+    "atsScore": number (0-100),
+    "grammarScore": number (0-100),
+
+    "keyFindings": {
+      "strengths": [string],
+      "areasToImprove": [string],
+      "criticalIssues": [string]
+    },
+
+    "improvementSuggestions": {
+      "content": [string],
+      "format": [string],
+      "atsOptimization": [string]
+    },
+
+    "atsCompatibilityDetails": {
+      "score": number (0-100),
+      "issues": [
+        {
+          "title": string,
+          "description": string,
+          "fix": string
+        }
+      ]
+    }${
+      jobUrl
+        ? `,
+    "keywordMatches": [
+      {
+        "keyword": string,
+        "count": number,
+        "recommended": 3
       }
+    ],
+    "suggestedKeywords": [string]`
+        : ""
     }
-    
-    IMPORTANT:
-    - Only return a valid JSON object.
-    - Do not include any explanation or markdown.
-    - Do not wrap the response in triple backticks.
-    
-    Resume:
-    ${data.rawText}
-    `;
-  console.log("Prompt for OpenAI:", prompt);
-    const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+  }
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.4,
-    });
+  IMPORTANT:
+  - Only return a valid JSON object.
+  - Do not include any explanation or markdown.
+  - Do not wrap the response in triple backticks.
+  - Always return suggested keywords that are missing or should be improved in the resume.
 
-    let rawContent = completion.choices[0].message.content.trim();
 
-    if (rawContent.startsWith("```")) {
-      rawContent = rawContent
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
-    }
+  ${
+    jobUrl
+      ? `
+  Job Description URL:
+  ${jobUrl}
+  `
+      : ""
+  }
 
-    const analysisResult = JSON.parse(rawContent);
+  Resume:
+  ${data.rawText}
+  `;
 
-    return analysisResult;
-  
+  const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ role: "user", content: prompt }],
+    temperature: 0.4,
+  });
+
+  let rawContent = completion.choices[0].message.content.trim();
+
+  if (rawContent.startsWith("```")) {
+    rawContent = rawContent
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+  }
+
+  const analysisResult = JSON.parse(rawContent);
+
+  return analysisResult;
 };
 
 export async function mapResumeToProfile(file) {

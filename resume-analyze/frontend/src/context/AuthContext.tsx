@@ -63,7 +63,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idToken }),
         });
-
+        if (res.status === 401) {
+          console.warn("Token invalid or expired. Logging out...");
+          await signOut(auth);
+          setUser(null);
+          localStorage.clear();
+          return;
+        }
         const userInfo: User = await res.json();
         setUser(userInfo);
         console.log("User info:", userInfo);

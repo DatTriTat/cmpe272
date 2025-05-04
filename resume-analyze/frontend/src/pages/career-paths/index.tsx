@@ -332,6 +332,8 @@ const CareerPathsPage: React.FC = () => {
                         ) as any
                       }
                       className="mb-3"
+                      aria-label="Skills match progress"
+
                     />
                     <div className="flex flex-wrap gap-2 mb-3">
                       {path.requiredSkills.map((skill) => (

@@ -143,6 +143,9 @@ const SavedCareerPathsPage: React.FC = () => {
                 <Button
                   variant="bordered"
                   endContent={<Icon icon="lucide:chevron-down" />}
+                  aria-label="Select category"
+
+
                 >
                   {selectedCategory}
                 </Button>
@@ -251,6 +254,8 @@ const SavedCareerPathsPage: React.FC = () => {
                       ) as any
                     }
                     className="mb-3"
+                    aria-label="Skills match progress"
+
                   />
 
                   <div className="flex flex-wrap gap-2 mb-3">

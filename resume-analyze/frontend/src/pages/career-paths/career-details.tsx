@@ -167,6 +167,8 @@ const CareerDetailsPage: React.FC = () => {
                 ) as any
               }
               className="mb-3"
+              aria-label="Skills match progress"
+
             />
 
             <div>
@@ -253,13 +255,6 @@ const CareerDetailsPage: React.FC = () => {
                           </div>
                         ))}
                       </div>
-                      {index === 2 && (
-                        <div className="mt-2 pt-2 border-t border-primary/20">
-                          <p className="text-sm font-medium text-primary">
-                            Your current level based on experience
-                          </p>
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}

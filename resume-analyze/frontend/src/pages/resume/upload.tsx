@@ -22,6 +22,7 @@ const UploadResumePage: React.FC = () => {
   const { user, setUser } = useAuth();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [mode, setMode] = React.useState<"analyze" | "map">("analyze");
+  const [jobUrl, setJobUrl] = React.useState("");
 
   const Navigate = useNavigate();
   const handleDrag = (e: React.DragEvent) => {
@@ -74,29 +75,26 @@ const UploadResumePage: React.FC = () => {
     try {
       let result;
       if (mode === "analyze") {
-        result = await uploadResumeForAnalysis(file, user?.token);
+        result = await uploadResumeForAnalysis(
+          file,
+          user?.token,
+          jobUrl || undefined
+        );
         localStorage.setItem("resumeAnalysisResult", JSON.stringify(result));
       } else {
         result = await uploadResumeToMapProfile(file, user?.token);
         if (user) {
-          setUser({
-            ...user,
-            profile: result.profile,
-          });
+          setUser({ ...user, profile: result.profile });
         }
       }
 
-      clearInterval(interval); 
-      setUploadProgress(100); 
+      clearInterval(interval);
+      setUploadProgress(100);
       setTimeout(() => {
-        if (mode === "analyze") {
-          Navigate("/resume/analysis");
-        } else {
-          Navigate("/profile");
-        }
+        Navigate(mode === "analyze" ? "/resume/analysis" : "/profile");
       }, 500);
     } catch (err) {
-      clearInterval(interval); 
+      clearInterval(interval);
       console.error(err);
       alert("Upload failed");
       setUploading(false);
@@ -182,17 +180,7 @@ const UploadResumePage: React.FC = () => {
                 </p>
               </div>
             )}
-            <div className="flex gap-4 items-center">
-              <label className="font-medium">Select Mode:</label>
-              <select
-                className="border p-2 rounded"
-                value={mode}
-                onChange={(e) => setMode(e.target.value as "analyze" | "map")}
-              >
-                <option value="analyze">Analyze Resume</option>
-                <option value="map">Map to Profile</option>
-              </select>
-            </div>
+            
             {file && !uploading && (
               <div className="border rounded-xl p-6">
                 <div className="flex items-center justify-between">
@@ -265,7 +253,30 @@ const UploadResumePage: React.FC = () => {
                 </p>
               </div>
             )}
+<div className="flex gap-4 items-center">
+              <label className="font-medium">Select Mode:</label>
+              <select
+                className="border p-2 rounded"
+                value={mode}
+                onChange={(e) => setMode(e.target.value as "analyze" | "map")}
+              >
+                <option value="analyze">Analyze Resume</option>
+                <option value="map">Map to Profile</option>
+              </select>
+            </div>
 
+            {mode === "analyze"  && (
+              <div>
+                <label className="font-medium">Job URL (optional):</label>
+                <input
+                  type="url"
+                  className="border p-2 rounded w-full"
+                  placeholder="Enter job URL"
+                  value={jobUrl}
+                  onChange={(e) => setJobUrl(e.target.value)}
+                />
+              </div>
+            )}
             <div className="bg-content2 p-4 rounded-lg">
               <h3 className="font-semibold mb-2">Resume Tips</h3>
               <ul className="space-y-2">

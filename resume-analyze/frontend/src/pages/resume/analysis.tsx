@@ -280,114 +280,82 @@ const ResumeAnalysisPage: React.FC = () => {
             </Card>
           </Tab>
 
-          <Tab key="keywords" title="Keyword Analysis">
-            <Card>
-              <CardBody className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    Keyword Matches
-                  </h3>
-                  <p className="text-default-500 mb-4">
-                    Based on job descriptions for React Developer positions,
-                    here's how your resume matches up with commonly required
-                    keywords:
-                  </p>
-
-                  <div className="space-y-4">
-                    {keywordMatches.map((keyword) => (
-                      <div key={keyword.keyword}>
-                        <div className="flex justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">
-                              {keyword.keyword}
+          {analysis?.keywordMatches && (
+            <Tab key="keywords" title="Keyword Analysis">
+              <Card>
+                <CardBody className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">
+                      Keyword Matches
+                    </h3>
+                    <p className="text-default-500 mb-4">
+                      Based on job descriptions for positions, here's how your
+                      resume matches up with commonly required keywords:
+                    </p>
+                    <div className="space-y-4">
+                      {analysis.keywordMatches.map((keyword) => (
+                        <div key={keyword.keyword}>
+                          <div className="flex justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">
+                                {keyword.keyword}
+                              </span>
+                              <Chip
+                                size="sm"
+                                color={
+                                  keyword.count >= keyword.recommended
+                                    ? "success"
+                                    : keyword.count > 0
+                                    ? "warning"
+                                    : "danger"
+                                }
+                                variant="flat"
+                              >
+                                {keyword.count >= keyword.recommended
+                                  ? "Good"
+                                  : keyword.count > 0
+                                  ? "Improve"
+                                  : "Missing"}
+                              </Chip>
+                            </div>
+                            <span className="text-sm">
+                              {keyword.count} / {keyword.recommended}{" "}
+                              recommended
                             </span>
-                            {keyword.count >= keyword.recommended ? (
-                              <Chip size="sm" color="success" variant="flat">
-                                Good
-                              </Chip>
-                            ) : keyword.count > 0 ? (
-                              <Chip size="sm" color="warning" variant="flat">
-                                Improve
-                              </Chip>
-                            ) : (
-                              <Chip size="sm" color="danger" variant="flat">
-                                Missing
-                              </Chip>
-                            )}
                           </div>
-                          <span className="text-sm">
-                            {keyword.count} / {keyword.recommended} recommended
-                          </span>
+                          <Progress
+                            value={(keyword.count / keyword.recommended) * 100}
+                            color={
+                              keyword.count >= keyword.recommended
+                                ? "success"
+                                : keyword.count > 0
+                                ? "warning"
+                                : "danger"
+                            }
+                            className="h-2"
+                          />
                         </div>
-                        <Progress
-                          value={(keyword.count / keyword.recommended) * 100}
-                          maxValue={100}
-                          color={
-                            keyword.count >= keyword.recommended
-                              ? "success"
-                              : keyword.count > 0
-                              ? "warning"
-                              : "danger"
-                          }
-                          className="h-2"
-                          aria-label={`${keyword.keyword} match progress`}
-                        />
-                      </div>
-                    ))}
+                      ))}
+                      {analysis?.suggestedKeywords?.length > 0 && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">
+                            Suggested Keywords to Add
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            {analysis.suggestedKeywords.map((kw, idx) => (
+                              <Chip key={idx} color="primary" variant="flat">
+                                {kw}
+                              </Chip>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-
-                <Divider />
-
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">
-                    Suggested Keywords to Add
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    <Chip color="primary" variant="flat">
-                      React Hooks
-                    </Chip>
-                    <Chip color="primary" variant="flat">
-                      Redux
-                    </Chip>
-                    <Chip color="primary" variant="flat">
-                      Unit Testing
-                    </Chip>
-                    <Chip color="primary" variant="flat">
-                      CI/CD
-                    </Chip>
-                    <Chip color="primary" variant="flat">
-                      Agile
-                    </Chip>
-                    <Chip color="primary" variant="flat">
-                      REST APIs
-                    </Chip>
-                    <Chip color="primary" variant="flat">
-                      GraphQL
-                    </Chip>
-                    <Chip color="primary" variant="flat">
-                      Responsive Design
-                    </Chip>
-                    <Chip color="primary" variant="flat">
-                      Performance Optimization
-                    </Chip>
-                  </div>
-                </div>
-
-                <div className="bg-content2 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Pro Tip</h4>
-                  <p className="text-sm">
-                    Tailor your resume for each job application by analyzing the
-                    specific job description and incorporating relevant
-                    keywords. This helps your resume pass through Applicant
-                    Tracking Systems (ATS) and increases your chances of getting
-                    an interview.
-                  </p>
-                </div>
-              </CardBody>
-            </Card>
-          </Tab>
-
+                </CardBody>
+              </Card>
+            </Tab>
+          )}
           <Tab key="ats" title="ATS Compatibility">
             <Card>
               <CardBody className="space-y-6">

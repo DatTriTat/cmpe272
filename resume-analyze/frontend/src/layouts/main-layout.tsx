@@ -33,7 +33,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             className="flex items-center gap-2 text-primary font-bold text-xl"
           >
             <Icon icon="lucide:briefcase" width={24} height={24} />
-            JobMatcher
+            FedBridge
           </Link>
         </NavbarBrand>
         <NavbarContent justify="end">

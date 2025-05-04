@@ -11,7 +11,10 @@ import User from "../models/User.js";
 export const analyzeResumeController = async (req, res) => {
   try {
     const file = req.file; 
-    const analysisResult = await analyzeResumeService(file);
+    const jobUrl = req.body.jobUrl || null;
+
+    const analysisResult = await analyzeResumeService(file, jobUrl);
+
     res.json({
       success: true,
       analysis: analysisResult,
@@ -21,6 +24,7 @@ export const analyzeResumeController = async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to analyze resume" });
   }
 };
+
 
 export async function ingestSkills(req, res, collection) {
   try {

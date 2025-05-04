@@ -9,6 +9,7 @@ import {
   Progress,
   Chip,
   Input,
+  Textarea,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import {
@@ -88,6 +89,7 @@ const AIInterviewPracticePage: React.FC = () => {
       }
     }
     setQuestions(updatedQuestions);
+    console.log("Updated questions:", updatedQuestions);
   };
 
   const handleNextQuestion = async () => {
@@ -104,7 +106,9 @@ const AIInterviewPracticePage: React.FC = () => {
     if (questions.length >= totalQuestions) return;
 
     const current = questions[currentQuestion];
-    if (!current || !current.answer.trim()) return;
+    if (!current?.answer || current.answer.trim() === "") {
+      return;
+    }
 
     const nextQ = await getNextQuestion(role, current.question, current.answer);
 
@@ -272,8 +276,9 @@ const AIInterviewPracticePage: React.FC = () => {
                         variant="flat"
                         onPress={handleNextQuestion}
                         isDisabled={
-                          currentQuestion >= questions.length - 1 &&
-                          questions.length >= totalQuestions
+                          !questions[currentQuestion]?.answer.trim() ||
+                          (currentQuestion >= questions.length - 1 &&
+                            questions.length >= totalQuestions)
                         }
                       >
                         <Icon icon="lucide:chevron-right" />
@@ -305,14 +310,19 @@ const AIInterviewPracticePage: React.FC = () => {
                       </div>
                     )}
 
-                    <Input
+                    <Textarea
                       fullWidth
+                      minRows={1}
+                      maxRows={10}
                       placeholder="Type your response..."
                       value={inputValue}
                       onValueChange={setInputValue}
                       isDisabled={isInputDisabled}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSendMessage();
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }
                       }}
                       endContent={
                         <Button

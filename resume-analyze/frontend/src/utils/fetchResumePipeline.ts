@@ -22,9 +22,10 @@ export default async function fetchResumePipeline(
 
 
 
-export async function uploadResumeForAnalysis(file: File, token: string): Promise<any> {
+export async function uploadResumeForAnalysis(file: File, token: string, jobUrl?: string): Promise<any> {
   const formData = new FormData();
   formData.append("file", file);
+  if (jobUrl) formData.append("jobUrl", jobUrl);
 
   const response = await fetch(`${BASE_URL}/api/career/analyze-resume`, {
     method: "POST",
@@ -41,6 +42,7 @@ export async function uploadResumeForAnalysis(file: File, token: string): Promis
   const data = await response.json();
   return data.analysis;
 }
+
 
 export async function uploadResumeToMapProfile(file: File, token?: string) {
   const formData = new FormData();
