@@ -177,11 +177,17 @@ export async function analyzeCareerFromProfile(
     }
   }
 
+  const normalizeSet = (arr) => arr.map(normalize);
+
   const missingSkills = [
     ...new Set(
-      suggestions.flatMap((sug) =>
-        sug.requiredSkills.filter((skill) => !sug.userSkills.includes(skill))
-      )
+      suggestions.flatMap((sug) => {
+        const normalizedRequired = normalizeSet(sug.requiredSkills);
+        const normalizedUser = new Set(normalizeSet(sug.userSkills));
+        return sug.requiredSkills.filter(
+          (_, i) => !normalizedUser.has(normalizedRequired[i])
+        );
+      })
     ),
   ];
 
@@ -189,16 +195,21 @@ export async function analyzeCareerFromProfile(
     { skills: missingSkills },
     cachedCoursesCollection
   );
+
   const enriched = suggestions.map((sug) => {
+    const normalizedRequired = normalizeSet(sug.requiredSkills);
+    const normalizedUser = new Set(normalizeSet(sug.userSkills));
     const missing = sug.requiredSkills.filter(
-      (s) => !sug.userSkills.includes(s)
+      (_, i) => !normalizedUser.has(normalizedRequired[i])
     );
+
     const suggestedCourses = courseMap
       .filter((entry) => missing.includes(entry.skill))
       .reduce((acc, entry) => {
         acc[entry.skill] = entry.courses;
         return acc;
       }, {});
+
     return {
       ...sug,
       missingSkills: missing,

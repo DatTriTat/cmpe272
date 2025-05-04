@@ -42,6 +42,8 @@ const CareerDetailsPage: React.FC = () => {
     if (matchPercentage >= 40) return "warning";
     return "danger";
   };
+  const normalize = (s: string) => s.toLowerCase().trim();
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col gap-6">
@@ -151,43 +153,58 @@ const CareerDetailsPage: React.FC = () => {
           <CardBody className="gap-4">
             <div className="flex justify-between items-center mb-2">
               <span>Skills Match</span>
-              <span className="text-default-500">
-                {careerPath.userSkills.length} of{" "}
-                {careerPath.requiredSkills.length} required skills
+              <span className="text-sm text-default-500">
+                {
+                  careerPath.requiredSkills.filter((req) =>
+                    careerPath.userSkills.some(
+                      (user) => normalize(user) === normalize(req)
+                    )
+                  ).length
+                }{" "}
+                of {careerPath.requiredSkills.length} required skills
               </span>
             </div>
             <Progress
               value={
-                (careerPath.userSkills.length / careerPath.requiredSkills.length) * 100
+                (careerPath.requiredSkills.filter((req) =>
+                  careerPath.userSkills.some(
+                    (user) => normalize(user) === normalize(req)
+                  )
+                ).length /
+                  careerPath.requiredSkills.length) *
+                100
               }
               color={
                 getSkillMatchColor(
-                  careerPath.userSkills.length,
+                  careerPath.requiredSkills.filter((req) =>
+                    careerPath.userSkills.some(
+                      (user) => normalize(user) === normalize(req)
+                    )
+                  ).length,
                   careerPath.requiredSkills.length
                 ) as any
               }
               className="mb-3"
               aria-label="Skills match progress"
-
             />
 
             <div>
               <h3 className="font-medium mb-2">Required Skills</h3>
               <div className="flex flex-wrap gap-2 mb-4">
-                {Array.isArray(careerPath.requiredSkills) &&
-                  careerPath.requiredSkills.map((skill) => (
+                {careerPath.requiredSkills.map((skill) => {
+                  const isMatched = careerPath.userSkills.some(
+                    (userSkill) => normalize(userSkill) === normalize(skill)
+                  );
+
+                  return (
                     <Chip
                       key={skill}
-                      color={
-                        careerPath.userSkills.includes(skill)
-                          ? "success"
-                          : "default"
-                      }
+                      color={isMatched ? "success" : "default"}
                       variant="flat"
                     >
                       <div className="flex items-center">
                         {skill}
-                        {careerPath.userSkills.includes(skill) && (
+                        {isMatched && (
                           <Icon
                             icon="lucide:check"
                             className="ml-1"
@@ -196,7 +213,8 @@ const CareerDetailsPage: React.FC = () => {
                         )}
                       </div>
                     </Chip>
-                  ))}
+                  );
+                })}
               </div>
 
               <h3 className="font-medium mb-2">
