@@ -33,7 +33,6 @@ const skillsCollection = db.collection("skills");
 const cachedCoursesCollection = db.collection("cached_courses"); 
 
 console.log("MongoClient connected to vector DB");
-
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/career", careerRoutes(skillsCollection, cachedCoursesCollection));

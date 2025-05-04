@@ -13,23 +13,22 @@ export async function generateFollowupQuestion(
   previousAnswer
 ) {
   const prompt = `
-You are a technical interviewer for a ${role} position.
-
-The candidate answered:
-"${previousAnswer}"
-to the question:
-"${previousQuestion}"
-
-Now, generate a relevant follow-up question.
-
-The follow-up should either:
-- Dive deeper into their explanation, asking for reasoning, trade-offs, or how they would apply it in a real scenario, **OR**
-- Clarify a key concept or definition if their answer lacked depth or was vague.
-
-Avoid generic or surface-level questions. Focus on evaluating their true understanding and ability to think critically.
-
-Return only the follow-up question.
-`;
+  You are a technical interviewer for a ${role} position.
+  
+  The candidate answered:
+  "${previousAnswer}"
+  to the question:
+  "${previousQuestion}"
+  
+  Your task is to determine the most appropriate next question.
+  
+  - If the answer is vague, incorrect, or missing key points, generate a follow-up question to clarify or probe deeper.
+  - If the answer is already correct, complete, and demonstrates clear understanding, then generate a **new, relevant question** that explores a related or next-level topic **specifically aligned with the ${role} role**.
+  
+  Avoid repeating the same topic. Keep the question technical, focused, and not generic.
+  
+  Return only one clear and relevant question.
+  `;
 
   const result = await model.call([
     new SystemMessage("You are a professional technical interviewer."),
