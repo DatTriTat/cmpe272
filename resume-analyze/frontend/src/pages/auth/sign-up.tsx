@@ -28,13 +28,8 @@ const SignUpPage: React.FC = () => {
     e.preventDefault();
 
     try {
-      const idToken = await firebaseSignup(email, password);
-      const res = await verifyIdToken(idToken);
-      if (!res.ok) {
-        throw new Error("Token verification failed");
-      }
-
-      navigate("/profile");
+      await firebaseSignup(email, password);
+      navigate("/sign-in");
     } catch (error: any) {
       alert("Sign up failed: " + error.message);
     }
@@ -42,15 +37,14 @@ const SignUpPage: React.FC = () => {
 
   const handleGoogleSignup = async () => {
     try {
-      const idToken = await firebaseGoogleLogin();
-      const res = await verifyIdToken(idToken);
-
-      if (!res.ok) {
-        throw new Error("Token verification failed");
-      }
+      await firebaseGoogleLogin();
       navigate("/profile");
     } catch (error: any) {
-      alert("Google signup failed: " + error.message);
+      if (error.code === "auth/popup-closed-by-user") {
+        console.log("Google sign-in popup was closed by user.");
+        return; 
+      }      
+      alert("Google login failed.");
     }
   };
 
