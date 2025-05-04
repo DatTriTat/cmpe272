@@ -202,10 +202,13 @@ export async function getCareerResults(token: string) {
       Authorization: `Bearer ${token}`,
     },
   });
+
   if (!res.ok) {
     const errorText = await res.text();
     throw new Error(`Failed to fetch career results: ${errorText}`);
   }
-
-  return await res.json();
+  const data = await res.json(); 
+  const allResults = data.flatMap((entry: any) => entry.results || []);
+  return allResults;
 }
+

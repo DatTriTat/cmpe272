@@ -16,9 +16,16 @@ const CareerDetailsPage: React.FC = () => {
   const { id } = useParams();
   const careerPathId = parseInt((id as string) || "1");
 
-  const stored = localStorage.getItem("careerSuggestions");
-  const allPaths = stored ? JSON.parse(stored) : [];
-  const careerPath = allPaths.find((p: any) => p.id === careerPathId);
+  const storedSuggestions = localStorage.getItem("careerSuggestions");
+  const storedBackup = localStorage.getItem("careerResultsBackup");
+
+  const suggestions = storedSuggestions ? JSON.parse(storedSuggestions) : [];
+  const backup = storedBackup ? JSON.parse(storedBackup) : [];
+  const allPaths = [...suggestions, ...backup];
+
+  const careerPath = allPaths.find(
+    (p: any) => p.id?.toString() === id?.toString()
+  );
   console.log("Looking for ID:", careerPath);
 
   const getScoreColor = (score: number) => {
@@ -26,7 +33,15 @@ const CareerDetailsPage: React.FC = () => {
     if (score >= 70) return "warning";
     return "danger";
   };
-
+  const getSkillMatchColor = (
+    userSkillsLength: number,
+    requiredSkillsLength: number
+  ) => {
+    const matchPercentage = (userSkillsLength / requiredSkillsLength) * 100;
+    if (matchPercentage >= 70) return "success";
+    if (matchPercentage >= 40) return "warning";
+    return "danger";
+  };
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col gap-6">
@@ -52,12 +67,6 @@ const CareerDetailsPage: React.FC = () => {
             >
               {careerPath.matchScore}% Match
             </Chip>
-            <Button
-              variant="flat"
-              startContent={<Icon icon="lucide:bookmark" />}
-            >
-              Save
-            </Button>
           </div>
         </div>
 
@@ -149,13 +158,17 @@ const CareerDetailsPage: React.FC = () => {
             </div>
             <Progress
               value={
-                (careerPath.userSkills.length /
-                  careerPath.requiredSkills.length) *
-                100
+                (careerPath.userSkills.length / careerPath.requiredSkills.length) * 100
               }
-              color={getScoreColor(careerPath.matchScore) as any}
+              color={
+                getSkillMatchColor(
+                  careerPath.userSkills.length,
+                  careerPath.requiredSkills.length
+                ) as any
+              }
               className="mb-3"
             />
+
             <div>
               <h3 className="font-medium mb-2">Required Skills</h3>
               <div className="flex flex-wrap gap-2 mb-4">
@@ -300,51 +313,48 @@ const CareerDetailsPage: React.FC = () => {
               <div>
                 <h3 className="font-medium mb-3">Courses</h3>
                 <div className="space-y-3">
-                  {careerPath.suggestedCourses &&
-                    Object.entries(careerPath.suggestedCourses).map(
-                      ([skill, courses]) =>
-                        (
-                          courses as {
-                            name: string;
-                            provider: string;
-                            duration: string;
-                            url: string;
-                          }[]
-                        ).map((course, index) => (
-                          <div
-                            key={`${skill}-${index}`}
-                            className="border rounded-lg p-4"
+                  {(() => {
+                    const courses = careerPath.suggestedCourses
+                      ? Object.values(careerPath.suggestedCourses).flat()
+                      : careerPath.courses || [];
+
+                    return courses.length > 0 ? (
+                      courses.map((course, index) => (
+                        <div
+                          key={`course-${index}`}
+                          className="border rounded-lg p-4"
+                        >
+                          <h4 className="font-medium mb-1">{course.name}</h4>
+                          <p className="text-sm text-default-500 mb-3">
+                            {course.provider} • {course.duration}
+                          </p>
+                          <Button
+                            size="sm"
+                            color="primary"
+                            variant="flat"
+                            as="a"
+                            href={course.url}
+                            target="_blank"
+                            endContent={
+                              <Icon
+                                icon="lucide:external-link"
+                                style={{ fontSize: 14 }}
+                              />
+                            }
                           >
-                            <h4 className="font-medium mb-1">{course.name}</h4>
-                            <p className="text-sm text-default-500 mb-3">
-                              {course.provider} • {course.duration}
-                            </p>
-                            <Button
-                              size="sm"
-                              color="primary"
-                              variant="flat"
-                              as="a"
-                              href={course.url}
-                              target="_blank"
-                              endContent={
-                                <Icon
-                                  icon="lucide:external-link"
-                                  style={{ fontSize: 14 }}
-                                />
-                              }
-                            >
-                              View Course
-                            </Button>
-                          </div>
-                        ))
-                    )}
+                            View Course
+                          </Button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-default-500">No courses available.</p>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
           </CardBody>
         </Card>
-
-
       </div>
     </div>
   );

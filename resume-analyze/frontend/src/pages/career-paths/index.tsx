@@ -63,28 +63,28 @@ const CareerPathsPage: React.FC = () => {
     try {
       const storedSuggestions = localStorage.getItem("careerSuggestions");
       const storedBookmarks = localStorage.getItem("savedCareerPaths");
-  
+
       const parsedSuggestions: CareerPath[] = storedSuggestions
         ? JSON.parse(storedSuggestions)
         : [];
       const parsedBookmarks: CareerPath[] = storedBookmarks
         ? JSON.parse(storedBookmarks)
         : [];
-  
+
       const bookmarkedIds = parsedBookmarks.map((p) => p.id);
-  
+
       const enrichedSuggestions = parsedSuggestions.map((item) => ({
         ...item,
         saved: bookmarkedIds.includes(item.id),
       }));
-  
+
       setCareerPaths(enrichedSuggestions);
-      setSavedIds(bookmarkedIds); 
-  
+      setSavedIds(bookmarkedIds);
+
       const dynamicCategories = enrichedSuggestions
         .map((item) => item.category)
         .filter(Boolean);
-  
+
       const uniqueCategories = Array.from(new Set(dynamicCategories)).sort();
       setCategoryList(["All Categories", ...uniqueCategories]);
     } catch (err) {
@@ -94,15 +94,26 @@ const CareerPathsPage: React.FC = () => {
       setCategoryList([]);
     }
   }, []);
-  
-  
 
+  const getSkillMatchColor = (
+    userSkillsLength: number,
+    requiredSkillsLength: number
+  ) => {
+    const matchPercentage = (userSkillsLength / requiredSkillsLength) * 100;
+    if (matchPercentage >= 70) return "success";
+    if (matchPercentage >= 40) return "warning";
+    return "danger";
+  };
   const getScoreColor = (score: number) => {
     if (score >= 85) return "success";
     if (score >= 70) return "warning";
     return "danger";
   };
-
+  const growthRank = {
+    Low: 1,
+    Medium: 2,
+    High: 3,
+  };
   const getDifficultyColor = (difficulty: string) => {
     if (difficulty === "Beginner") return "success";
     if (difficulty === "Intermediate") return "warning";
@@ -125,38 +136,40 @@ const CareerPathsPage: React.FC = () => {
       return getMinSalary(b.salaryRange) - getMinSalary(a.salaryRange);
     }
     // Growth rate
-    const aGrowth = parseInt(a.growthRate.replace(/[^0-9]/g, "")) || 0;
-    const bGrowth = parseInt(b.growthRate.replace(/[^0-9]/g, "")) || 0;
+    const aGrowth = growthRank[a.growthRate as keyof typeof growthRank] || 0;
+    const bGrowth = growthRank[b.growthRate as keyof typeof growthRank] || 0;
     return bGrowth - aGrowth;
   });
 
   const handleSavePath = async (path: CareerPath) => {
     try {
       if (!user?.token) throw new Error("No token found");
-  
+
       const stored = localStorage.getItem("savedCareerPaths");
       const saved = stored ? JSON.parse(stored) : [];
-  
+
       const exists = saved.some((p: CareerPath) => p.id === path.id);
       if (exists) {
         console.log("Already saved in localStorage → skipping backend call");
         return;
       }
-  
-      await saveCareerResults(user.token, [path]);
-      console.log("✅ Saved to backend");
-  
-      const updated = [...saved, path];
+      const flattenedCourses = Object.values(
+        path.suggestedCourses || {}
+      ).flat();
+      const pathToSave = {
+        ...path,
+        courses: flattenedCourses,
+      };
+      delete pathToSave.suggestedCourses;
+      await saveCareerResults(user.token, [pathToSave]);
+      const updated = [...saved, pathToSave];
       localStorage.setItem("savedCareerPaths", JSON.stringify(updated));
-  
       setSavedIds((prev) => [...prev, path.id]);
-  
-      console.log("Added to localStorage and updated state");
     } catch (err: any) {
       console.error("Failed to save career path:", err.message);
     }
   };
-  
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col gap-6">
@@ -245,13 +258,13 @@ const CareerPathsPage: React.FC = () => {
                   </div>
                   <div className="flex flex-col items-end">
                     <div className="flex items-center gap-1">
-                      <span
-                        className={`font-bold text-${getScoreColor(
-                          path.matchScore
-                        )}`}
+                      <Chip
+                        color={getScoreColor(path.matchScore) as any}
+                        variant="flat"
+                        className="text-sm"
                       >
-                        {path.matchScore}%
-                      </span>
+                        {path.matchScore}% Match
+                      </Chip>
                       <span className="text-sm text-default-500">match</span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
@@ -312,7 +325,12 @@ const CareerPathsPage: React.FC = () => {
                         (path.userSkills.length / path.requiredSkills.length) *
                         100
                       }
-                      color={getScoreColor(path.matchScore) as any}
+                      color={
+                        getSkillMatchColor(
+                          path.userSkills.length,
+                          path.requiredSkills.length
+                        ) as any
+                      }
                       className="mb-3"
                     />
                     <div className="flex flex-wrap gap-2 mb-3">

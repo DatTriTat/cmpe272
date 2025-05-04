@@ -48,6 +48,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       path: "/jobs",
       icon: "lucide:briefcase",
     },
+    {
+      name: "Saved Paths",
+      path: "/career-paths/saved",
+      icon: "lucide:bookmark",
+    }
   ];
 
   return (

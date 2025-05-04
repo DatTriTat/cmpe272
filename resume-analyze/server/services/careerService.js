@@ -97,7 +97,6 @@ export async function analyzeCareerFromProfile(
       },
     ])
     .toArray();
-
   const prompt = `
   You are a career assistant AI specialized in resume analysis and career matching.
   Your task is to analyze a user's resume and matched job data, then suggest career paths.
@@ -123,6 +122,8 @@ export async function analyzeCareerFromProfile(
   
   Guidelines:
   - For each "fitReason", choose an appropriate Lucide icon name
+  - "fitReasons" must contain exactly 3 items (not fewer or more).
+  - "careerPath" should include at least one entry.
   - Populate all fields meaningfully.
   - "userSkills" must be a subset of "requiredSkills" that appear in the user's resume.
   - Use "#" as placeholder for URLs if unknown.
@@ -136,7 +137,7 @@ export async function analyzeCareerFromProfile(
   """
   Summary: ${summary}
   Skills: ${query}
-  Education: ${educations.map((e) => `${e.school} (${e.degree})`).join(", ")}
+  Education: ${educations.map((e) => ` ${e.degree} in ${e.field}`).join(", ")}
   Experience: ${experiences.map((e) => `${e.position} at ${e.company}`).join(", ")}
   """
   
@@ -145,20 +146,16 @@ export async function analyzeCareerFromProfile(
   ${vectorSearchResults
     .map(
       (job) => `
-  Title: ${job.job_position_name}
-  Skills: ${job.skills_required}
+  Title: ${job.title}
+  Skills: ${job.skills_text}
   Skill Text: ${job.skills_text}
-  Education: ${job.educational_requirements}
+  Education: ${job.education_requirement}
   Responsibilities: ${job.responsibilities}
-  Salary: ${job.salary_range}
-  Growth: ${job.growth_projection}
-  Category: ${job.job_category}
   `
     )
     .join("\n---\n")}
   """
   `;
-
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     messages: [{ role: "user", content: prompt }],

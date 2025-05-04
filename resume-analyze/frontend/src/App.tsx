@@ -23,6 +23,7 @@ import DashboardLayout from './layouts/dashboard-layout';
 // Contexts
 import ProtectedRoute from './context/ProtectedRoute';
 import PublicRoute from './context/PublicRoute';
+import SavedCareerPathsPage from './pages/career-paths/SavedCareerPathsPage';
 
 const App: React.FC = () => {
   return (
@@ -109,6 +110,15 @@ const App: React.FC = () => {
             </DashboardLayout>
           </ProtectedRoute>
         } />
+        <Route path="/career-paths/saved" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <SavedCareerPathsPage />
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
+
+        {/* Fallback route */}
       </Routes>
     </Router>
   );
