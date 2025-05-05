@@ -68,11 +68,15 @@ Return only the feedback — do not repeat the question or answer.
 
 export async function generateFirstQuestion(role) {
   const prompt = `
-You are a professional interviewer for the role of ${role}.
+You are a senior technical interviewer for a ${role} position.
 Start the interview by asking the first technical or behavioral question.
 
 The question should NOT be trivial — it must assess the candidate's core knowledge in this role. 
-Make it challenging enough to differentiate strong candidates from average ones.
+Use it as a benchmark to gauge their experience and expertise for any follow-up questions.
+Make it challenging enough to differentiate strong candidates from average ones, but please start
+with a question that is not too difficult, a mid level question is preferred.
+Try to focus mainly on technical aspects, the question should be positioned in a way that it 
+cannot be answered with a simple "yes" or "no", it needs to be open-ended and require a detailed response.
 
 Do NOT include any feedback or explanation — just the question.
 `;
@@ -84,7 +88,8 @@ Do NOT include any feedback or explanation — just the question.
 
   return result.content.trim();
 }
-
+// This function generates a complete interview script 
+// for a specific role, including technical and behavioral questions
 export async function generateInterviewQuestions(role) {
   const prompt = `
 You are a senior technical interviewer for a ${role} position.
@@ -124,7 +129,31 @@ Example:
   } catch (err) {
     console.error("Parsing error:", err);
   }
-
   // Fallback: return as a single string if model failed to follow format
   return [result.content.trim()];
 }
+
+// This function generates a STAR format question for behavioral interviews
+// We will be uisign this at the end of the interview to ask the candidate about their past experiences
+// and how they handled certain situations. This is a common practice in behavioral interviews.
+export async function generateStarQuestion(role) {
+  const prompt = `
+You are a senior technical interviewer for a ${role} position.
+
+Ask a behavioral interview question in the **STAR format**.
+- Use phrasing like “Tell me about a time when...”
+- The situation should be realistic and relevant to challenges faced in a ${role} job.
+- Focus on non-technical aspects like conflict resolution, decision-making, communication, leadership, working under pressure, or handling failure.
+- The question should prompt a story, ideally showing the candidate’s soft skills in a professional context.
+
+Return only the question, no explanation or commentary.
+`;
+
+  const result = await model.call([
+    new SystemMessage("You are a professional behavioral interviewer."),
+    new HumanMessage(prompt),
+  ]);
+
+  return result.content.trim();
+}
+

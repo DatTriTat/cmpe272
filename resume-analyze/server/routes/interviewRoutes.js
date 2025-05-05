@@ -6,6 +6,7 @@ import {
   getInterviewQuestions,  // Generates a complete 10-question structured interview flow
   saveInterview,          // Saves the interview session with user's role and question history
   getInterviewHistory,    // Retrieves all past interview sessions for the authenticated user
+  getStarQuestion,       // Retrieves a star question for the user
 } from "../controllers/interviewController.js";
 import { checkAuth } from "../middlewares/authMiddleware.js";
 import { checkRole } from "../middlewares/roleMiddleware.js";
@@ -30,9 +31,13 @@ router.post("/interview/questions", getInterviewQuestions);
 // Save the interview session with user's role and question history
 // This allows users to keep track of their interview progress and review past sessions
 router.post("/save", checkAuth, checkRole("user"), saveInterview);
+// POST
+//  Get a star question for the user
+router.post("/interview/star", getStarQuestion);
 // GET
 // Retrieve all past interview sessions for the authenticated user
 // This is useful for users to review their interview history and progress
+
 router.get(
   "/interview-history",
   checkAuth,

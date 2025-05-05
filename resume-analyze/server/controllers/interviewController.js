@@ -3,6 +3,7 @@ import {
   generateFeedback,
   generateFirstQuestion,
   generateInterviewQuestions,
+  generateStarQuestion,
 } from "../services/langchainService.js";
 import {saveInterviewService,} from "../services/interviewService.js";
 import InterviewSession from "../models/interviewSessionSchema.js";
@@ -21,6 +22,24 @@ export async function getInterviewQuestions(req, res) {
   } catch (err) {
     console.error("Error generating full interview questions:", err);
     res.status(500).json({ error: "Failed to generate questions" });
+  }
+}
+// will be used to generate a STAR question for the user
+// will be called atleast once in the interview process
+// POST /api/interview/star
+export async function getStarQuestion(req, res) {
+  try {
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ error: "Missing required field: role" });
+    }
+
+    const question = await generateStarQuestion(role);
+    res.status(200).json({ question });
+  } catch (err) {
+    console.error("Error generating STAR question:", err);
+    res.status(500).json({ error: "Failed to generate STAR question" });
   }
 }
 
