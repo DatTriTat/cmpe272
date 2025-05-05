@@ -131,4 +131,27 @@ Integrated with RapidAPI to:
 ---
 
 ### ✅ Progress Dashboard  
-- View your
+- View your job readiness status at a glance  
+- Track uploaded resumes, matched roles, and completed upskilling modules  
+- Monitor AI feedback history and interview improvement over time
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**.
+
+You are free to:
+
+- Use the software for personal, academic, or commercial purposes
+- Modify, merge, publish, and distribute copies of the software
+- Grant sublicenses of the software
+
+**Conditions:**
+
+- Attribution must be given to the original creators (FEDBRIDGE team - CMPE 272)
+- The license and copyright notice must be included
+
+For the full text of the license, refer to the `LICENSE` file in the root of the repository.
+
+---
