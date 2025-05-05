@@ -373,7 +373,7 @@ const AIInterviewPracticePage: React.FC = () => {
                     </p>
                     <Button
                       color="primary"
-                      onPress={() => setSelected("practice")}
+                      onPress={() => setSelected("preparation")}
                     >
                       Start Your First Practice
                     </Button>

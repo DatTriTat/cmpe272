@@ -1,4 +1,5 @@
 import { BASE_URL } from "../config/config";
+import { withKongKey } from "./authHeaders";
 
 export default async function fetchResumePipeline(
   formData: FormData,
@@ -7,9 +8,9 @@ export default async function fetchResumePipeline(
   const response = await fetch(`${BASE_URL}/api/career/analyze-career`, {
     method: "POST",
     body: formData,
-    headers: {
+    headers: withKongKey({
       Authorization: `Bearer ${token}`,
-    },
+    }),
   });
 
   if (!response.ok) {
@@ -20,9 +21,11 @@ export default async function fetchResumePipeline(
   return await response.json();
 }
 
-
-
-export async function uploadResumeForAnalysis(file: File, token: string, jobUrl?: string): Promise<any> {
+export async function uploadResumeForAnalysis(
+  file: File,
+  token: string,
+  jobUrl?: string
+): Promise<any> {
   const formData = new FormData();
   formData.append("file", file);
   if (jobUrl) formData.append("jobUrl", jobUrl);
@@ -30,9 +33,9 @@ export async function uploadResumeForAnalysis(file: File, token: string, jobUrl?
   const response = await fetch(`${BASE_URL}/api/career/analyze-resume`, {
     method: "POST",
     body: formData,
-    headers: {
+    headers: withKongKey({
       Authorization: `Bearer ${token}`,
-    },
+    }),
   });
 
   if (!response.ok) {
@@ -43,7 +46,6 @@ export async function uploadResumeForAnalysis(file: File, token: string, jobUrl?
   return data.analysis;
 }
 
-
 export async function uploadResumeToMapProfile(file: File, token?: string) {
   const formData = new FormData();
   formData.append("file", file);
@@ -51,9 +53,9 @@ export async function uploadResumeToMapProfile(file: File, token?: string) {
   try {
     const res = await fetch(`${BASE_URL}/api/profile/map`, {
       method: "POST",
-      headers: {
+      headers: withKongKey({
         Authorization: `Bearer ${token}`,
-      },
+      }),
       body: formData,
     });
 
@@ -73,15 +75,17 @@ export async function fetchCareerSuggestions(token?: string): Promise<any[]> {
   try {
     const response = await fetch(`${BASE_URL}/api/career/analyze-career`, {
       method: "GET",
-      headers: {
+      headers: withKongKey({
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
+        Authorization: `Bearer ${token}`,
+      }),
     });
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || "Failed to fetch suggestions");
     }
+
     const data = await response.json();
     return data;
   } catch (err: any) {
