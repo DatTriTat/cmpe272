@@ -1,77 +1,69 @@
-CMPE 272 – FEDBRIDGE
-A Platform for Reskilling Laid-Off Federal Employees for Private Sector Careers
+# CMPE 272 – FEDBRIDGE  
+**A Platform for Reskilling Laid-Off Federal Employees for Private Sector Careers**
 
-🚧 Problem Statement
+---
+
+## 🚧 Problem Statement
+
 Laid-off federal employees often face significant barriers when transitioning into private-sector roles. These include:
 
-Misalignment in job expectations and required skills
+- Misalignment in job expectations and required skills  
+- Difficulty translating federal experience and clearances into private-sector value  
+- Bureaucratic communication styles that don’t align with corporate culture  
+- Lack of tailored resources to guide career pivoting and upskilling  
 
-Difficulty translating federal experience and clearances into private-sector value
+---
 
-Bureaucratic communication styles that don’t align with corporate culture
+## 💡 Solution
 
-Lack of tailored resources to guide career pivoting and upskilling
+**FEDBRIDGE** is a digital reskilling and career transition platform designed specifically for former federal employees.  
+By leveraging AI and real-time labor market data, it:
 
-💡 Solution
-FEDBRIDGE is a digital reskilling and career transition platform designed specifically for former federal employees. By leveraging AI and real-time labor market data, it:
+- Translates government-specific roles and competencies into private-sector job equivalents  
+- Recommends targeted learning paths using top e-learning platforms  
+- Offers AI-powered job suggestions and interview prep  
+- Facilitates mentorship through a federal alumni network  
 
-Translates government-specific roles and competencies into private-sector job equivalents
+---
 
-Recommends targeted learning paths using top e-learning platforms
+## 🧱 Architecture & Tech Stack
 
-Offers AI-powered job suggestions and interview prep
+### 🔐 Frontend  
+- **Language:** TypeScript  
+- **Framework:** React  
+- **Styling:** Tailwind CSS  
+- **UI Library:** HeroUI  
 
-Facilitates mentorship through a federal alumni network
+### ⚙️ Backend  
+- **Runtime:** Node.js  
+- **Framework:** Express.js  
+- **Authentication:** Firebase Auth  
+- **Database:** MongoDB Atlas (Cloud-hosted NoSQL DB)  
 
-🧱 Architecture & Tech Stack
-🔐 Frontend
-Language: TypeScript
+### 🧠 AI Integration  
+- **Framework:** Langchain  
+- **Model Provider:** OpenAI GPT-4  
+- **Use Cases:**  
+  - Translating federal job experience into private-sector equivalents  
+  - Personalized job and course recommendations  
+  - AI-driven interview practice and communication coaching  
 
-Framework: React
+### ☁️ Deployment & DevOps  
+- **Cloud Provider:** Google Cloud Platform (GCP)  
+- **Containerization:** Docker  
+- **Orchestration:** Kubernetes Engine  
+- **CI/CD:** GitHub Actions  
 
-Styling: Tailwind CSS
+### 🧩 External APIs  
+- **APIFY:** Online course scraping (e.g., Udemy, Coursera)  
+- **AFFINDA:** Resume parsing and keyword extraction  
+- **RapidAPI:** Job listings and labor market analytics  
 
-UI Library: HeroUI
+---
 
-⚙️ Backend
-Runtime: Node.js
+## 🗂 Sample MongoDB Schema
 
-Framework: Express.js
-
-Authentication: Firebase Auth
-
-Database: MongoDB Atlas (Cloud-hosted NoSQL DB)
-
-🧠 AI Integration
-AI Framework: Langchain
-
-Model Provider: OpenAI GPT-4
-
-Use Cases:
-
-Translating federal job experience into private-sector equivalents
-
-Personalized job and course recommendations
-
-AI-driven interview practice and communication coaching
-
-☁️ Deployment & DevOps
-Cloud Provider: Google Cloud Platform (GCP)
-
-Containerization: Docker
-
-Orchestration: Kubernetes Engine
-
-CI/CD: GitHub Actions
-
-🧩 External APIs
-APIFY: For scraping online course listings (e.g., Udemy, Coursera)
-
-AFFINDA: Resume parsing and keyword extraction
-
-RapidAPI: Private-sector job listings and labor market trends
-
-Sample MongoDB Schema
+```json
 {
   "user_profile": {
     "clearance_level": "TS/SCI",
@@ -81,55 +73,62 @@ Sample MongoDB Schema
     "transition_goal": "Private Sector Procurement Manager"
   }
 }
+```
 
- Features
+
+ ---
+
+## ✨ Features
+
+### ✅ Upload Resume  
 Upload your resume to unlock two AI-powered modes:
 
-1. Map to Profile
+#### 1. Map to Profile  
+- Parses resume content using AFFINDA API  
+- Automatically extracts skills, certifications, and job history  
+- Maps transferable competencies to your FEDBRIDGE profile
 
-- Automatically parses resume content
-- Transfers extracted skills, experience, and qualifications to your user profile
-  
-2. Analyze Resume
+#### 2. Analyze Resume  
+- Identifies strengths, achievements, and leadership signals  
+- Flags gaps or areas for improvement  
+- Analyzes keywords for industry alignment  
+- Reviews formatting and ATS (Applicant Tracking System) compatibility  
 
-- Identifies key strengths and skill gaps
-- Highlights critical issues and formatting concerns
-- Performs keyword and ATS (Applicant Tracking System) compatibility analysis
+---
 
-✅ AI-Powered Job Matching
-Utilizes real-time labor market analytics to:
+### ✅ AI-Powered Job Matching  
+FEDBRIDGE uses OpenAI’s GPT-4 and labor market analytics to:  
+- Recommend roles aligned with a user’s federal experience and skills  
+- Suggest emerging job titles based on industry trends  
+- Recommend prioritized upskilling options via Coursera, Udemy, or LinkedIn Learning  
+- Visualize skill gaps and progress toward a chosen private-sector path
 
-- Recommend private-sector job roles based on transferable skills
-- Highlight strengths aligned with high-growth industries
-- Suggest upskilling content tailored to your experience and goals
+---
 
-✅ Interview Simulation & Coaching
-Powered by LangChain + OpenAI GPT-4:
+### ✅ Interview Simulation & Coaching  
+With **LangChain + GPT-4**, candidates can:  
+- Practice mock interviews tailored to targeted job roles  
+- Receive STAR-format coaching (Situation, Task, Action, Result)  
+- Improve verbal delivery and reduce reliance on bureaucratic language  
+- Get instant AI feedback on tone, clarity, and relevance
 
-- Simulates industry-specific interviews with AI-generated questions
-- Provides instant feedback and coaching
-- Helps you transition from bureaucratic to concise, results-oriented communication
+---
 
-✅ Personalized Job Search
-- Integrated with RapidAPI to pull relevant job listings and descriptions
-- Provides direct external application links
-- Delivers job matches tailored to your profile, preferences, and skillset
+### ✅ Personalized Job Search  
+Integrated with RapidAPI to:  
+- Pull live job listings by industry, region, and skill match  
+- Display job descriptions with estimated salary ranges  
+- Offer filters for remote/in-person roles, companies, and growth metrics  
+- Provide direct application links and saving/bookmarking functionality  
 
+---
 
- Target Audience
-Former federal employees across sectors such as:
+### ✅ Federal Alumni Mentorship  
+- Match users with former federal employees now working in the private sector  
+- Enable 1:1 chat, video calls, and milestone guidance  
+- Build a community of support and real-world transition stories
 
-- USAID
-- DoD
-- DHS
-- GSA
+---
 
-Especially those in:
-
-- Procurement
-- IT & Cybersecurity
-- Administration
-- Policy & Legal
-
-📄 License
-MIT License — free to use and modify with attribution.
+### ✅ Progress Dashboard  
+- View your
