@@ -1,34 +1,135 @@
+CMPE 272 – FEDBRIDGE
+A Platform for Reskilling Laid-Off Federal Employees for Private Sector Careers
 
-# CMPE272
+🚧 Problem Statement
+Laid-off federal employees often face significant barriers when transitioning into private-sector roles. These include:
 
- ** FEDBRIDGE **  A Platform for Reskilling Laid-Off Federal Employees for Private Sector Careers 
+Misalignment in job expectations and required skills
 
-Problem:
-       Laid-off federal employees face challenges transitioning into private-sector jobs due to differences in job requirements, skills, and hiring expectations. Federal workers struggle with 
-       translating security clearances into salary premiums, adapting bureaucratic communication styles, etc..
+Difficulty translating federal experience and clearances into private-sector value
 
-Solution:
-       Develop a digital platform to help former federal employees reskill and transition into new roles by combining government-specific skill translation algorithms with real-time labor 
-       market analytics, the system addresses the unique challenges federal employees face when entering corporate hiring pipelines.
+Bureaucratic communication styles that don’t align with corporate culture
 
-Technology:
-      * Use MongoDB to take user input (prior experience, job title, skill set).
-                  # Sample MongoDB schema for federal skill mapping  
-                  user_profile = {  
-                      "clearance_level": "TS/SCI",  
-                      "GS_grade": 13,  
-                      "skills": ["ITAR Compliance", "Procurement Oversight"]  
-                 }  
-      * AI Integration(OpenAI/Deepseek):
-                  Recommending private sector jobs based on transferable experience, skills, and local job market trends.
-                  Suggesting online courses (Udemy, Coursera, LinkedIn Learning) and generating personalized learning paths tailored to bridge skill gaps.
-                  Providing interview preparation with industry-specific questions and AI-driven coaching that helps candidates transform from bureaucratic communication patterns to concise .
+Lack of tailored resources to guide career pivoting and upskilling
 
-Features:
-      *Federal skill decoder, which converts government-specific  experience into private-sector equivalents.
-      *AI-powered pathway engine which recommends roles with skill alignment and also suggests courses prioritized by job growth.
-      *Government- corporate interview simulation and practice sessions on adapting answers from federal to private formats.
-      *Federal alumni network mentorship  matching with a successfully transitioned ex-federal  professional.
+💡 Solution
+FEDBRIDGE is a digital reskilling and career transition platform designed specifically for former federal employees. By leveraging AI and real-time labor market data, it:
 
-Target Audience:
-     Former federal employees, especially those in procurement, administration, IT, and policy roles (e.g., USAID, DoD, DHS).
+Translates government-specific roles and competencies into private-sector job equivalents
+
+Recommends targeted learning paths using top e-learning platforms
+
+Offers AI-powered job suggestions and interview prep
+
+Facilitates mentorship through a federal alumni network
+
+🧱 Architecture & Tech Stack
+🔐 Frontend
+Language: TypeScript
+
+Framework: React
+
+Styling: Tailwind CSS
+
+UI Library: HeroUI
+
+⚙️ Backend
+Runtime: Node.js
+
+Framework: Express.js
+
+Authentication: Firebase Auth
+
+Database: MongoDB Atlas (Cloud-hosted NoSQL DB)
+
+🧠 AI Integration
+AI Framework: Langchain
+
+Model Provider: OpenAI GPT-4
+
+Use Cases:
+
+Translating federal job experience into private-sector equivalents
+
+Personalized job and course recommendations
+
+AI-driven interview practice and communication coaching
+
+☁️ Deployment & DevOps
+Cloud Provider: Google Cloud Platform (GCP)
+
+Containerization: Docker
+
+Orchestration: Kubernetes Engine
+
+CI/CD: GitHub Actions
+
+🧩 External APIs
+APIFY: For scraping online course listings (e.g., Udemy, Coursera)
+
+AFFINDA: Resume parsing and keyword extraction
+
+RapidAPI: Private-sector job listings and labor market trends
+
+Sample MongoDB Schema
+{
+  "user_profile": {
+    "clearance_level": "TS/SCI",
+    "GS_grade": 13,
+    "skills": ["ITAR Compliance", "Procurement Oversight"],
+    "interests": ["Supply Chain", "Operations"],
+    "transition_goal": "Private Sector Procurement Manager"
+  }
+}
+
+ Features
+Upload your resume to unlock two AI-powered modes:
+
+1. Map to Profile
+
+- Automatically parses resume content
+- Transfers extracted skills, experience, and qualifications to your user profile
+  
+2. Analyze Resume
+
+- Identifies key strengths and skill gaps
+- Highlights critical issues and formatting concerns
+- Performs keyword and ATS (Applicant Tracking System) compatibility analysis
+
+✅ AI-Powered Job Matching
+Utilizes real-time labor market analytics to:
+
+- Recommend private-sector job roles based on transferable skills
+- Highlight strengths aligned with high-growth industries
+- Suggest upskilling content tailored to your experience and goals
+
+✅ Interview Simulation & Coaching
+Powered by LangChain + OpenAI GPT-4:
+
+- Simulates industry-specific interviews with AI-generated questions
+- Provides instant feedback and coaching
+- Helps you transition from bureaucratic to concise, results-oriented communication
+
+✅ Personalized Job Search
+- Integrated with RapidAPI to pull relevant job listings and descriptions
+- Provides direct external application links
+- Delivers job matches tailored to your profile, preferences, and skillset
+
+
+ Target Audience
+Former federal employees across sectors such as:
+
+- USAID
+- DoD
+- DHS
+- GSA
+
+Especially those in:
+
+- Procurement
+- IT & Cybersecurity
+- Administration
+- Policy & Legal
+
+📄 License
+MIT License — free to use and modify with attribution.
