@@ -136,7 +136,49 @@ Integrated with RapidAPI to:
 - Monitor AI feedback history and interview improvement over time
 
 ---
+## ✅ Testing & Code Quality --- BONUS POINTS
 
+### 📌 Static Analysis (Linting)
+
+To maintain code quality and enforce consistent style across the backend, we used **ESLint**:
+
+- Detects syntax errors, unreachable code, and unused variables
+- Enforces best practices with modern ES module standards
+- Helps prevent bugs before runtime
+
+#### 🔧 Run ESLint:
+```bash
+cd resume-analyze/server
+npx eslint .
+npx eslint . --fix
+```
+### 🧪 Unit Testing with Code Coverage
+
+We implemented unit tests using **Vitest**, and used **C8** to measure code coverage.
+
+Test cases cover:
+- Input validation
+- AI-driven logic (mocked)
+- MongoDB session persistence (mocked)
+
+#### ✅ Test Coverage Summary
+
+| Endpoint               | Description                                           |
+|------------------------|-------------------------------------------------------|
+| `getFirstQuestion`     | Returns question (valid input)                        |
+| `getFirstQuestion`     | Returns 400 (missing role)                            |
+| `getFeedback`          | Returns feedback (valid input)                        |
+| `getFeedback`          | Returns 400 (missing fields)                          |
+| `saveInterview`        | Saves session (valid input with mocked DB)            |
+| `saveInterview`        | Returns 400 (invalid or missing input)                |
+| `getNextQuestion`      | Returns 400 (missing required fields)                 |
+
+#### ▶️ Run Tests
+```bash
+npm test
+npx c8 npm test
+npx c8 report
+```
 ## 📄 License
 
 This project is licensed under the **MIT License**.
