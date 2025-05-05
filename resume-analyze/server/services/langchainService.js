@@ -88,9 +88,12 @@ Do NOT include any feedback or explanation — just the question.
 
   return result.content.trim();
 }
+
 // This function generates a complete interview script 
 // for a specific role, including technical and behavioral questions
+
 export async function generateInterviewQuestions(role) {
+  
   const prompt = `
 You are a senior technical interviewer for a ${role} position.
 Create a 10-question interview script that follows this structure:
@@ -136,7 +139,9 @@ Example:
 // This function generates a STAR format question for behavioral interviews
 // We will be uisign this at the end of the interview to ask the candidate about their past experiences
 // and how they handled certain situations. This is a common practice in behavioral interviews.
+
 export async function generateStarQuestion(role) {
+  
   const prompt = `
 You are a senior technical interviewer for a ${role} position.
 
@@ -149,7 +154,7 @@ Ask a behavioral interview question in the **STAR format**.
 Return only the question, no explanation or commentary.
 `;
 
-  const result = await model.call([
+  const result = await model.ParsedCallOptions([
     new SystemMessage("You are a professional behavioral interviewer."),
     new HumanMessage(prompt),
   ]);

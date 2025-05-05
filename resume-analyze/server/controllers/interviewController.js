@@ -42,7 +42,9 @@ export async function getStarQuestion(req, res) {
     res.status(500).json({ error: "Failed to generate STAR question" });
   }
 }
-
+// POST /api/interview/next-question
+// Generates a follow-up question based on the candidate's previous answer
+// This is used to continue the interview process and keep it dynamic
 export async function getNextQuestion(req, res) {
   try {
     const { role, previousQuestion, previousAnswer } = req.body;
@@ -67,6 +69,9 @@ export async function getNextQuestion(req, res) {
 }
 
 // POST /api/interview/feedback
+// Generates feedback for a given question and answer
+// This is used to provide the candidate with insights on their performance
+// and areas for improvement
 export async function getFeedback(req, res) {
   try {
     const { role, question, answer } = req.body;
@@ -84,6 +89,9 @@ export async function getFeedback(req, res) {
     res.status(500).json({ error: "Failed to generate feedback" });
   }
 }
+// POST /api/interview/first-question
+// Generates the first question for a specific role
+// This is the starting point of the interview process
 export async function getFirstQuestion(req, res) {
 
   try {
