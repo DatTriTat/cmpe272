@@ -2,9 +2,27 @@ import {
   generateFollowupQuestion,
   generateFeedback,
   generateFirstQuestion,
+  generateInterviewQuestions,
 } from "../services/langchainService.js";
 import {saveInterviewService,} from "../services/interviewService.js";
 import InterviewSession from "../models/interviewSessionSchema.js";
+
+export async function getInterviewQuestions(req, res) {
+  try {
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ error: "Missing required field: role" });
+    }
+
+    const questions = await generateInterviewQuestions(role);
+
+    res.status(200).json({ questions });
+  } catch (err) {
+    console.error("Error generating full interview questions:", err);
+    res.status(500).json({ error: "Failed to generate questions" });
+  }
+}
 
 export async function getNextQuestion(req, res) {
   try {

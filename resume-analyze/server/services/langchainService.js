@@ -84,3 +84,47 @@ Do NOT include any feedback or explanation — just the question.
 
   return result.content.trim();
 }
+
+export async function generateInterviewQuestions(role) {
+  const prompt = `
+You are a senior technical interviewer for a ${role} position.
+Create a 10-question interview script that follows this structure:
+
+1. Ask the candidate how many years of experience they have as a ${role}.
+2. Ask them to describe the most relevant technical project they’ve worked on in this role.
+3-8. Ask increasingly technical and challenging follow-up questions that dig into the candidate’s decision-making, design choices, and tradeoffs from the project. Focus on asking "why" questions.
+    - Each question should probe into the candidate’s reasoning, technical depth, and architecture decisions.
+    - Example themes: scalability, maintainability, performance, security, tech stack choices, etc.
+    - Avoid repeating topics — each question should explore a unique technical angle.
+
+9-10. Ask two **STAR-format** behavioral questions. Use “Tell me about a time when…” phrasing.
+    - These should relate to the real-world challenges the candidate might face in a ${role} position (e.g., conflict resolution, production issues, tight deadlines, stakeholder disagreements, team leadership, etc.)
+
+Return the questions as a **JavaScript array of strings**. Do not include explanations, markdown, or code — just the array format.
+
+Example:
+[
+  "How many years of experience do you have as a backend developer?",
+  "Tell me about the most relevant project you've worked on as a backend developer.",
+  ...
+]
+  `;
+
+  const result = await model.call([
+    new SystemMessage("You are a senior technical interviewer creating structured interviews."),
+    new HumanMessage(prompt),
+  ]);
+
+  // Try to safely parse the array if the model returns it as a stringified array
+  try {
+    const parsed = JSON.parse(result.content);
+    if (Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (err) {
+    console.error("Parsing error:", err);
+  }
+
+  // Fallback: return as a single string if model failed to follow format
+  return [result.content.trim()];
+}
