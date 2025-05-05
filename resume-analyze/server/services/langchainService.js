@@ -74,7 +74,7 @@ Start the interview by asking the first technical or behavioral question.
 The question should NOT be trivial — it must assess the candidate's core knowledge in this role. 
 Use it as a benchmark to gauge their experience and expertise for any follow-up questions.
 Make it challenging enough to differentiate strong candidates from average ones, but please start
-with a question that is not too difficult, a mid level question is preferred.
+with a question that is not too difficult, a mid level question for his ${role}.
 Try to focus mainly on technical aspects, the question should be positioned in a way that it 
 cannot be answered with a simple "yes" or "no", it needs to be open-ended and require a detailed response.
 
@@ -154,7 +154,7 @@ Ask a behavioral interview question in the **STAR format**.
 Return only the question, no explanation or commentary.
 `;
 
-  const result = await model.ParsedCallOptions([
+  const result = await model.call([
     new SystemMessage("You are a professional behavioral interviewer."),
     new HumanMessage(prompt),
   ]);

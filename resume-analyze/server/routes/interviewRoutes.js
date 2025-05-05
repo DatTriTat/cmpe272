@@ -33,7 +33,7 @@ router.post("/interview/questions", getInterviewQuestions);
 router.post("/save", checkAuth, checkRole("user"), saveInterview);
 // POST
 //  Get a star question for the user
-router.post("/interview/star", getStarQuestion);
+router.post("/star", getStarQuestion);
 // GET
 // Retrieve all past interview sessions for the authenticated user
 // This is useful for users to review their interview history and progress
