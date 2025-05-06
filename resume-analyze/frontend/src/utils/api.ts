@@ -94,10 +94,12 @@ export async function getStarQuestion(
   role: string,
   previousQuestion: string,
   previousAnswer: string
-): Promise<string> {  
+): Promise<string> {
   const res = await fetch(`${BASE_URL}/api/interview/star`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: withKongKey({
+      "Content-Type": "application/json",
+    }),
     body: JSON.stringify({ role, previousQuestion, previousAnswer }),
   });
 
@@ -173,7 +175,6 @@ export async function getInterviewHistory(idToken: string) {
   return response.json();
 }
 
-
 export interface JobQuery {
   title?: string;
   location?: string;
@@ -212,7 +213,6 @@ export async function fetchJobsFromBackend(query: JobQuery): Promise<Job[]> {
   if (!response.ok) throw new Error("Failed to fetch jobs");
   return data;
 }
-
 
 export async function saveCareerResults(token: string, results: any[]) {
   const res = await fetch(`${BASE_URL}/api/career-results`, {
