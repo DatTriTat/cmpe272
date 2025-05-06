@@ -17,6 +17,7 @@ import {
   getNextQuestion,
   getFeedback,
   saveInterviewSession,
+  getStarQuestion,  
 } from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
 import { getInterviewHistory } from "../../utils/api";
@@ -29,6 +30,8 @@ const AIInterviewPracticePage: React.FC = () => {
   const [isInputDisabled, setIsInputDisabled] = React.useState(false);
   const [question, setQuestion] = React.useState<string | null>(null);
   const [role, setRole] = React.useState("");
+  //getStarQuestion state
+  const [starQuestion, setStarQuestion] = React.useState<string | null>(null);
   const [previousQuestion, setPreviousQuestion] = React.useState<string | null>(
     null
   );
@@ -36,7 +39,7 @@ const AIInterviewPracticePage: React.FC = () => {
   const [questions, setQuestions] = React.useState<
     { question: string; answer: string; feedback: string }[]
   >([]);
-  const totalQuestions = 5;
+  const totalQuestions = 6;
   const [history, setHistory] = React.useState<any[]>([]);
   const { user, setUser } = useAuth();
   const [viewingHistorySession, setViewingHistorySession] =
@@ -94,7 +97,7 @@ const AIInterviewPracticePage: React.FC = () => {
 
   const handleNextQuestion = async () => {
     const nextIndex = currentQuestion + 1;
-
+    let nextQ;
     if (nextIndex < questions.length) {
       setCurrentQuestion(nextIndex);
       setInputValue("");
@@ -109,9 +112,16 @@ const AIInterviewPracticePage: React.FC = () => {
     if (!current?.answer || current.answer.trim() === "") {
       return;
     }
+    if (questions.length === totalQuestions - 1) {
+      nextQ = await getStarQuestion(role, current.question, current.answer);
+    }
+    else{
+      nextQ = await getNextQuestion(role, current.question, current.answer);
+    }
+    // Check if we are at the last question and need to get a STAR question
 
-    const nextQ = await getNextQuestion(role, current.question, current.answer);
-
+   
+    
     setQuestions((prev) => [
       ...prev,
       { question: nextQ, answer: "", feedback: "" },

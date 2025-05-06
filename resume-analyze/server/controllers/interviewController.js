@@ -2,10 +2,49 @@ import {
   generateFollowupQuestion,
   generateFeedback,
   generateFirstQuestion,
+  generateInterviewQuestions,
+  generateStarQuestion,
 } from "../services/langchainService.js";
 import {saveInterviewService,} from "../services/interviewService.js";
 import InterviewSession from "../models/interviewSessionSchema.js";
 
+export async function getInterviewQuestions(req, res) {
+  try {
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ error: "Missing required field: role" });
+    }
+
+    const questions = await generateInterviewQuestions(role);
+
+    res.status(200).json({ questions });
+  } catch (err) {
+    console.error("Error generating full interview questions:", err);
+    res.status(500).json({ error: "Failed to generate questions" });
+  }
+}
+// will be used to generate a STAR question for the user
+// will be called atleast once in the interview process
+// POST /api/interview/star
+export async function getStarQuestion(req, res) {
+  try {
+    const { role } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ error: "Missing required field: role" });
+    }
+
+    const question = await generateStarQuestion(role);
+    res.status(200).json({ question });
+  } catch (err) {
+    console.error("Error generating STAR question:", err);
+    res.status(500).json({ error: "Failed to generate STAR question" });
+  }
+}
+// POST /api/interview/next-question
+// Generates a follow-up question based on the candidate's previous answer
+// This is used to continue the interview process and keep it dynamic
 export async function getNextQuestion(req, res) {
   try {
     const { role, previousQuestion, previousAnswer } = req.body;
@@ -30,6 +69,9 @@ export async function getNextQuestion(req, res) {
 }
 
 // POST /api/interview/feedback
+// Generates feedback for a given question and answer
+// This is used to provide the candidate with insights on their performance
+// and areas for improvement
 export async function getFeedback(req, res) {
   try {
     const { role, question, answer } = req.body;
@@ -47,6 +89,9 @@ export async function getFeedback(req, res) {
     res.status(500).json({ error: "Failed to generate feedback" });
   }
 }
+// POST /api/interview/first-question
+// Generates the first question for a specific role
+// This is the starting point of the interview process
 export async function getFirstQuestion(req, res) {
 
   try {

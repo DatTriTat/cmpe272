@@ -90,6 +90,25 @@ export async function getNextQuestion(
   const data = await res.json();
   return data.question;
 }
+export async function getStarQuestion(
+  role: string,
+  previousQuestion: string,
+  previousAnswer: string
+): Promise<string> {  
+  const res = await fetch(`${BASE_URL}/api/interview/star`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ role, previousQuestion, previousAnswer }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Failed to get next question: ${errorText}`);
+  }
+
+  const data = await res.json();
+  return data.question;
+}
 
 export async function getFeedback(
   role: string,
