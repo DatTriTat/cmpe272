@@ -136,7 +136,6 @@ const CareerPathsPage: React.FC = () => {
         if (!match) return 0;
         return parseInt(match[0].replace(/[,.]/g, "")) || 0;
       };
-      console.log(getMinSalary(b.salaryRange) - getMinSalary(a.salaryRange));
       return getMinSalary(b.salaryRange) - getMinSalary(a.salaryRange);
     }
     
