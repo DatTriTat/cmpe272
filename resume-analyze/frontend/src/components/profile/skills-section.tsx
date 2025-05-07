@@ -57,7 +57,7 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, setSkills }) => {
               placeholder="e.g., React, Python, Project Management"
               value={newSkill}
               onValueChange={setNewSkill}
-              onKeyDown={(e) => e.key === "Enter" && handleAddSkill()}
+              onKeyDown={(e) => e.key === "Enter"}
             />
           </div>
           <Button
