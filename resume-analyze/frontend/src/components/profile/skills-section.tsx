@@ -46,20 +46,25 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, setSkills }) => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleAddSkill();
+  }
+
   return (
     <Card>
       <CardBody className="space-y-6">
         {/* Add Skill */}
-        <div className="flex flex-col md:flex-row md:items-end gap-4">
-          <div className="flex-1">
-            <Input
+        <form
+          className="flex items-center md:flex-row gap-4"
+          onSubmit={handleSubmit}
+        >
+          <Input
               label="Add Skill"
               placeholder="e.g., React, Python, Project Management"
               value={newSkill}
               onValueChange={setNewSkill}
-              onKeyDown={(e) => e.key === "Enter"}
-            />
-          </div>
+          />
           <Button
             color="primary"
             onPress={handleAddSkill}
@@ -67,11 +72,17 @@ const SkillsSection: React.FC<SkillsSectionProps> = ({ skills, setSkills }) => {
           >
             Add Skill
           </Button>
-        </div>
+        </form>
 
         {/* Skills List */}
         <div>
           <h3 className="text-lg font-semibold mb-4">Your Skills</h3>
+          {
+            skills.length === 0 &&
+            <div className="text-gray-400">
+              You have not include any skills yet. Please consider add more skills
+            </div>
+          }
           <div className="flex flex-wrap gap-2">
             {skills.map((skill, index) => (
               <Chip

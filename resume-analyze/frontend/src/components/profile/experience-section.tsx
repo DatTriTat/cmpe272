@@ -297,6 +297,13 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({
         )}
 
         <div className="space-y-6">
+          {
+            experiences.length === 0 &&
+            <div className="text-gray-400">
+              You have not include any experiences yet. Please consider add more experiences
+            </div>
+          }
+
           {experiences.map((exp, index) => (
             <div key={exp.id ?? exp._id ?? index} className="space-y-4">
               <div className="flex justify-between">

@@ -296,6 +296,13 @@ const EducationSection: React.FC<EducationSectionProps> = ({
 
         {/* Education List */}
         <div className="space-y-6">
+          {
+            educations.length === 0 &&
+            <div className="text-gray-400">
+              You have not include any educations yet. Please consider add more educations
+            </div>
+          }
+
           {educations.map((edu, index) => (
             <div key={edu._id ?? edu.id ?? index} className="space-y-2">
               <div className="flex justify-between">
