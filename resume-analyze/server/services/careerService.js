@@ -123,7 +123,7 @@ export async function analyzeCareerFromProfile(
   Guidelines:
   - For each "fitReason", choose an appropriate Lucide icon name
   - "fitReasons" must contain exactly 3 items (not fewer or more).
-  - "growthRate" should be low, medium or high.
+  - "growthRate" should be Low, Medium or High.
   - "careerPath" should include at least one entry.
   - Populate all fields meaningfully.
   - "userSkills" must be a subset of "requiredSkills" that appear in the user's resume.
