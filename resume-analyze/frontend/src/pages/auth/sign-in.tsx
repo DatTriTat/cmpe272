@@ -38,22 +38,31 @@ const SignInPage: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
+    if (loading) return;
+  
     setLoading(true);
     try {
       await firebaseGoogleLogin();
       navigate("/profile");
     } catch (error: any) {
+      console.log("Google Signin Error: ", error.code, error.message);
+  
       if (error.code === "auth/popup-closed-by-user") {
         console.log("Google sign-in popup was closed by user.");
-        return; 
-      } else {
-        alert("Google login failed.");
+        return;
       }
+  
+      if (error.code === "auth/cancelled-popup-request") {
+        console.log("Another popup login request was cancelled.");
+        return;
+      }
+  
+      alert("Google login failed: " + error.message);
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <Card className="border-none shadow-none">
       <CardBody className="gap-4">
