@@ -25,3 +25,4 @@ dist-ssr
 .qodo
 .env
 server/firebase/serviceAccountKey.json
+uploads
