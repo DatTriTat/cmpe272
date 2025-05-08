@@ -1,16 +1,19 @@
 import fs from "fs";
 import { OpenAI } from "openai";
 import { parseResume } from "../utils/parseResume.js";
-
+import { fetchJobDescriptionFromApify } from "../utils/indeedScaper.js";
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 export const analyzeResumeService = async (file, jobUrl = null) => {
   const data = await parseResume(file);
-
+  let jobDescription = "";
+  if (jobUrl) {
+    jobDescription = await fetchJobDescriptionFromApify(jobUrl);
+  }
   const prompt = `
   You are a resume evaluation assistant.
 
-  Given the following parsed resume (extracted using Affinda)${jobUrl ? " and the job description provided at the URL" : ""}, return a JSON object with all of the following:
+  Given the following parsed resume (extracted using Affinda)${jobDescription ? " and the job description provided below" : ""}, return a JSON object with all of the following:
 
   {
     "overallScore": number (0-100),
@@ -64,10 +67,10 @@ export const analyzeResumeService = async (file, jobUrl = null) => {
 
 
   ${
-    jobUrl
+    jobDescription
       ? `
-  Job Description URL:
-  ${jobUrl}
+  Job Description:
+  ${jobDescription}
   `
       : ""
   }
@@ -75,7 +78,7 @@ export const analyzeResumeService = async (file, jobUrl = null) => {
   Resume:
   ${data.rawText}
   `;
-
+  console.log("Prompt for OpenAI:", prompt);
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
   const completion = await openai.chat.completions.create({
