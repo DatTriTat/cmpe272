@@ -7,6 +7,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 export const analyzeResumeService = async (file, jobUrl = null) => {
   const data = await parseResume(file);
   let jobDescription = "";
+  console.log("check:", jobUrl);
   if (jobUrl) {
     jobDescription = await fetchJobDescriptionFromApify(jobUrl);
   }
@@ -78,7 +79,6 @@ export const analyzeResumeService = async (file, jobUrl = null) => {
   Resume:
   ${data.rawText}
   `;
-  console.log("Prompt for OpenAI:", prompt);
   const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
   const completion = await openai.chat.completions.create({

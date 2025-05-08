@@ -9,8 +9,12 @@ export async function fetchJobDescriptionFromApify(jobUrl) {
   };
 
   try {
-    const run = await apify.actor("misceres/indeed-scraper").call(input);
+    const run = await apify.actor("misceres/indeed-scraper").call(input, {
+      memory: 512,
+    });
     const { items } = await apify.dataset(run.defaultDatasetId).listItems();
+    console.log("Scraped items:", items.length);
+
     if (!items || items.length === 0) {
       console.warn("No job data returned for:", jobUrl);
       return null;
