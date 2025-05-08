@@ -383,7 +383,7 @@ const AIInterviewPracticePage: React.FC = () => {
                     </p>
                     <Button
                       color="primary"
-                      onPress={() => setSelected("practice")}
+                      onPress={() => setSelected("preparation")}
                     >
                       Start Your First Practice
                     </Button>
@@ -406,7 +406,7 @@ const AIInterviewPracticePage: React.FC = () => {
                               questions: session.questions,
                             });
                             setRole(session.role);
-                            setSelected("preparation");
+                            setSelected("practice");
                             setCurrentQuestion(0);
                             setIsInputDisabled(true);
                             setQuestions(session.questions);

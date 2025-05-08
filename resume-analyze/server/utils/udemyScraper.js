@@ -1,6 +1,6 @@
 import { ApifyClient } from 'apify-client';
 
-const client = new ApifyClient({
+const apify = new ApifyClient({
   token: process.env.APIFY_API_KEY,
 });
 
@@ -19,11 +19,12 @@ export async function fetchTopUdemyCourses(keyword) {
 
   try {
     // Run the scraper actor
-    const run = await client.actor("natanielsantos/udemy-courses-scraper").call(input);
-
+    const run = await apify.actor("natanielsantos/udemy-courses-scraper").call(input, {
+      memory: 512,
+    });
     // Fetch results
-    const { items } = await client.dataset(run.defaultDatasetId).listItems();
-
+    const { items } = await apify.dataset(run.defaultDatasetId).listItems();
+    console.log("Scraped items:", items.length);
     // Return course data
     return items.map((course) => ({
       name: course.title || "Untitled",

@@ -23,6 +23,7 @@ interface UserProfile {
   experiences?: any[];
   educations?: any[];
 }
+import { withKongKey } from "../utils/authHeaders";
 
 interface User {
   uid: string;
@@ -60,7 +61,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const idToken = await getIdToken(firebaseUser);
         const res = await fetch(`${BASE_URL}/api/auth/verify`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: withKongKey({
+            "Content-Type": "application/json",
+          }),
           body: JSON.stringify({ idToken }),
         });
         if (res.status === 401) {

@@ -131,10 +131,14 @@ const CareerPathsPage: React.FC = () => {
   const sortedPaths = [...filteredPaths].sort((a, b) => {
     if (selected === "best-match") return b.matchScore - a.matchScore;
     if (selected === "salary") {
-      const getMinSalary = (range: string) =>
-        parseInt(range.replace(/[^0-9]/g, "").slice(0, 5)) || 0;
+      const getMinSalary = (range: string): number => {
+        const match = range.match(/\d[\d,.]*/);
+        if (!match) return 0;
+        return parseInt(match[0].replace(/[,.]/g, "")) || 0;
+      };
       return getMinSalary(b.salaryRange) - getMinSalary(a.salaryRange);
     }
+    
     // Growth rate
     const aGrowth = growthRank[a.growthRate as keyof typeof growthRank] || 0;
     const bGrowth = growthRank[b.growthRate as keyof typeof growthRank] || 0;

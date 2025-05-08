@@ -1,0 +1,42 @@
+_format_version: "3.0"
+
+services:
+  - name: server-api
+    url: http://server-service.default.svc.cluster.local:80
+    routes:
+      - name: server-route
+        paths:
+          - /api
+        strip_path: false
+
+plugins:
+  - name: key-auth
+    service: server-api
+    config:
+      key_names:
+        - x-api-key
+
+  - name: cors
+    service: server-api
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+        - HEAD
+      headers:
+        - "*"
+      exposed_headers:
+        - "*"
+      credentials: true
+      max_age: 3600
+
+consumers:
+  - username: myfrontend
+    keyauth_credentials:
+      - key: abc123xyz

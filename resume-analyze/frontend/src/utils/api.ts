@@ -1,4 +1,7 @@
 import { BASE_URL } from "../config/config";
+
+import { withKongKey } from "./authHeaders";
+
 export async function saveUserProfile(
   token: string,
   profile: any,
@@ -7,10 +10,10 @@ export async function saveUserProfile(
   try {
     const response = await fetch(`${BASE_URL}/api/profile`, {
       method: "PUT",
-      headers: {
+      headers: withKongKey({
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-      },
+      }),
       body: JSON.stringify(profile),
     });
 
@@ -34,7 +37,9 @@ export async function saveUserProfile(
 export async function verifyIdToken(idToken: string) {
   const res = await fetch(`${BASE_URL}/api/auth/verify`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: withKongKey({
+      "Content-Type": "application/json",
+    }),
     body: JSON.stringify({ idToken }),
   });
 
@@ -49,7 +54,9 @@ export async function verifyIdToken(idToken: string) {
 export async function getFirstQuestion(role: string): Promise<string> {
   const res = await fetch(`${BASE_URL}/api/interview/first-question`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: withKongKey({
+      "Content-Type": "application/json",
+    }),
     body: JSON.stringify({ role }),
   });
 
@@ -69,7 +76,9 @@ export async function getNextQuestion(
 ): Promise<string> {
   const res = await fetch(`${BASE_URL}/api/interview/next-question`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: withKongKey({
+      "Content-Type": "application/json",
+    }),
     body: JSON.stringify({ role, previousQuestion, previousAnswer }),
   });
 
@@ -85,10 +94,12 @@ export async function getStarQuestion(
   role: string,
   previousQuestion: string,
   previousAnswer: string
-): Promise<string> {  
+): Promise<string> {
   const res = await fetch(`${BASE_URL}/api/interview/star`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: withKongKey({
+      "Content-Type": "application/json",
+    }),
     body: JSON.stringify({ role, previousQuestion, previousAnswer }),
   });
 
@@ -108,7 +119,9 @@ export async function getFeedback(
 ): Promise<string> {
   const res = await fetch(`${BASE_URL}/api/interview/feedback`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: withKongKey({
+      "Content-Type": "application/json",
+    }),
     body: JSON.stringify({ role, question, answer }),
   });
 
@@ -121,7 +134,6 @@ export async function getFeedback(
   return data.feedback;
 }
 
-// utils/api.ts
 export async function saveInterviewSession(
   role: string,
   questions: {
@@ -129,14 +141,14 @@ export async function saveInterviewSession(
     answer: string;
     feedback: string;
   }[],
-  idToken: string // Firebase ID Token
+  idToken: string
 ) {
   const response = await fetch(`${BASE_URL}/api/interview/save`, {
     method: "POST",
-    headers: {
+    headers: withKongKey({
       "Content-Type": "application/json",
       Authorization: `Bearer ${idToken}`,
-    },
+    }),
     body: JSON.stringify({ role, questions }),
   });
 
@@ -151,9 +163,9 @@ export async function saveInterviewSession(
 export async function getInterviewHistory(idToken: string) {
   const response = await fetch(`${BASE_URL}/api/interview/interview-history`, {
     method: "GET",
-    headers: {
+    headers: withKongKey({
       Authorization: `Bearer ${idToken}`,
-    },
+    }),
   });
 
   if (!response.ok) {
@@ -185,13 +197,17 @@ export interface Job {
   link: string;
   logoUrl?: string | null;
 }
+
 export async function fetchJobsFromBackend(query: JobQuery): Promise<Job[]> {
   const params = new URLSearchParams();
   if (query.title) params.append("title", query.title);
   if (query.location) params.append("location", query.location);
 
   const response = await fetch(
-    `${BASE_URL}/api/jobs/search?${params.toString()}`
+    `${BASE_URL}/api/jobs/search?${params.toString()}`,
+    {
+      headers: withKongKey(),
+    }
   );
   const data = await response.json();
   if (!response.ok) throw new Error("Failed to fetch jobs");
@@ -201,10 +217,10 @@ export async function fetchJobsFromBackend(query: JobQuery): Promise<Job[]> {
 export async function saveCareerResults(token: string, results: any[]) {
   const res = await fetch(`${BASE_URL}/api/career-results`, {
     method: "POST",
-    headers: {
+    headers: withKongKey({
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-    },
+    }),
     body: JSON.stringify({ results }),
   });
   if (!res.ok) {
@@ -217,17 +233,16 @@ export async function saveCareerResults(token: string, results: any[]) {
 export async function getCareerResults(token: string) {
   const res = await fetch(`${BASE_URL}/api/career-results`, {
     method: "GET",
-    headers: {
+    headers: withKongKey({
       Authorization: `Bearer ${token}`,
-    },
+    }),
   });
 
   if (!res.ok) {
     const errorText = await res.text();
     throw new Error(`Failed to fetch career results: ${errorText}`);
   }
-  const data = await res.json(); 
+  const data = await res.json();
   const allResults = data.flatMap((entry: any) => entry.results || []);
   return allResults;
 }
-

@@ -19,6 +19,7 @@ const SignUpPage: React.FC = () => {
   const [name, setName] = React.useState("");
   const [isVisible, setIsVisible] = React.useState(false);
   const [agreedToTerms, setAgreedToTerms] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const navigate = useNavigate();
 
@@ -26,27 +27,43 @@ const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    if (loading) return; 
+  
+    setLoading(true);
     try {
       await firebaseSignup(email, password);
       navigate("/sign-in");
     } catch (error: any) {
       alert("Sign up failed: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
+  
 
   const handleGoogleSignup = async () => {
+    if (loading) return;
+  
+    setLoading(true);
     try {
       await firebaseGoogleLogin();
       navigate("/profile");
     } catch (error: any) {
+      console.log("Google Sign-In Error:", error.code, error.message);
+  
       if (error.code === "auth/popup-closed-by-user") {
-        console.log("Google sign-in popup was closed by user.");
-        return; 
-      }      
-      alert("Google login failed.");
+        console.log("The Google sign-in popup was closed by the user.");
+      } else if (error.code === "auth/cancelled-popup-request") {
+        console.log("A previous popup login request was canceled.");
+      } else {
+        alert("Google login failed: " + error.message);
+      }
+    } finally {
+      setLoading(false);
     }
   };
+  
 
   return (
     <Card className="border-none shadow-none">
