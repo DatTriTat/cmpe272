@@ -1,11 +1,17 @@
-import React from 'react';
-import { Button, Card, CardBody, Divider } from '@heroui/react';
-import { Link as RouterLink } from 'react-router-dom';
-import { Icon } from '@iconify/react';
-import FeatureCard from '../../components/feature-card';
-import TestimonialCard from '../../components/testimonial-card';
+import React, { useRef } from "react";
+import { Button, Card, CardBody, Divider } from "@heroui/react";
+import { Link as RouterLink } from "react-router-dom";
+import { Icon } from "@iconify/react";
+import FeatureCard from "../../components/feature-card";
+import TestimonialCard from "../../components/testimonial-card";
 
 const LandingPage: React.FC = () => {
+  const howItWorksRef = useRef<HTMLDivElement>(null);
+
+  const scrollToHowItWorks = () => {
+    howItWorksRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div>
       {/* Hero Section */}
@@ -17,22 +23,23 @@ const LandingPage: React.FC = () => {
                 Find Your Dream Job with AI-Powered Matching
               </h1>
               <p className="text-xl text-default-700 mb-8">
-                JobMatcher uses advanced AI to match your skills with the perfect job, prepare you for interviews, and optimize your resume.
+                JobMatcher uses advanced AI to match your skills with the
+                perfect job, prepare you for interviews, and optimize your
+                resume.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  as={RouterLink} 
-                  to="/sign-up" 
-                  color="primary" 
+                <Button
+                  as={RouterLink}
+                  to="/sign-up"
+                  color="primary"
                   size="lg"
                   startContent={<Icon icon="lucide:user-plus" />}
                 >
                   Get Started
                 </Button>
-                <Button 
-                  as={RouterLink} 
-                  to="#how-it-works" 
-                  variant="flat" 
+                <Button
+                  onPress={scrollToHowItWorks}
+                  variant="flat"
                   size="lg"
                   startContent={<Icon icon="lucide:play" />}
                 >
@@ -41,9 +48,9 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
             <div className="md:w-1/2">
-              <img 
-                src="https://img.heroui.chat/image/dashboard?w=600&h=400&u=1" 
-                alt="JobMatcher Dashboard" 
+              <img
+                src="https://img.heroui.chat/image/dashboard?w=600&h=400&u=1"
+                alt="JobMatcher Dashboard"
                 className="rounded-xl shadow-xl w-full"
               />
             </div>
@@ -57,22 +64,23 @@ const LandingPage: React.FC = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Powerful Features</h2>
             <p className="text-xl text-default-600 max-w-2xl mx-auto">
-              Our AI-powered platform helps you at every step of your job search journey
+              Our AI-powered platform helps you at every step of your job search
+              journey
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FeatureCard 
+            <FeatureCard
               icon="lucide:target"
               title="Smart Job Matching"
               description="Our AI analyzes your skills, experience, and preferences to find the perfect job matches for you."
             />
-            <FeatureCard 
+            <FeatureCard
               icon="lucide:message-circle"
               title="AI Interview Practice"
               description="Practice with our AI interviewer that simulates real interview scenarios and provides feedback."
             />
-            <FeatureCard 
+            <FeatureCard
               icon="lucide:file-text"
               title="Resume Optimization"
               description="Get personalized suggestions to improve your resume and increase your chances of getting noticed."
@@ -82,7 +90,11 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* How It Works */}
-      <section id="how-it-works" className="py-16 bg-content2">
+      <section
+        id="how-it-works"
+        ref={howItWorksRef}
+        className="py-16 bg-content2"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">How It Works</h2>
@@ -90,27 +102,62 @@ const LandingPage: React.FC = () => {
               A simple process to boost your career opportunities
             </p>
           </div>
-          
+          <div className="flex justify-center mb-16">
+            <div className="w-full md:w-3/4 lg:w-2/3 aspect-video">
+              <iframe
+                width="100%"
+                height="100%"
+                src="https://www.youtube.com/embed/zj6fV5wAKkQ?vq=hd720"
+                title="How JobMatcher Works"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="rounded-xl shadow-lg"
+              ></iframe>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
+              <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                1
+              </div>
               <h3 className="text-xl font-semibold mb-2">Create Profile</h3>
-              <p className="text-default-600">Sign up and create your professional profile with your skills and experience.</p>
+              <p className="text-default-600">
+                Sign up and create your professional profile with your skills
+                and experience.
+              </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
+              <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                2
+              </div>
               <h3 className="text-xl font-semibold mb-2">Upload Resume</h3>
-              <p className="text-default-600">Upload your resume and get AI-powered analysis and optimization suggestions.</p>
+              <p className="text-default-600">
+                Upload your resume and get AI-powered analysis and optimization
+                suggestions.
+              </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
-              <h3 className="text-xl font-semibold mb-2">Practice Interviews</h3>
-              <p className="text-default-600">Practice with our AI interviewer to improve your interview skills.</p>
+              <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                3
+              </div>
+              <h3 className="text-xl font-semibold mb-2">
+                Practice Interviews
+              </h3>
+              <p className="text-default-600">
+                Practice with our AI interviewer to improve your interview
+                skills.
+              </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">4</div>
+              <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                4
+              </div>
               <h3 className="text-xl font-semibold mb-2">Get Matched</h3>
-              <p className="text-default-600">Receive personalized job matches based on your profile and preferences.</p>
+              <p className="text-default-600">
+                Receive personalized job matches based on your profile and
+                preferences.
+              </p>
             </div>
           </div>
         </div>
@@ -125,23 +172,23 @@ const LandingPage: React.FC = () => {
               See how JobMatcher has helped professionals land their dream jobs
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <TestimonialCard 
+            <TestimonialCard
               name="Sarah Johnson"
               role="Software Engineer"
               company="Tech Innovations Inc."
               image="https://img.heroui.chat/image/avatar?w=200&h=200&u=2"
               quote="JobMatcher helped me prepare for technical interviews with its AI practice sessions. I landed a job at my dream company within a month!"
             />
-            <TestimonialCard 
+            <TestimonialCard
               name="Michael Chen"
               role="Marketing Manager"
               company="Global Brands"
               image="https://img.heroui.chat/image/avatar?w=200&h=200&u=3"
               quote="The resume analysis tool pointed out key improvements that made my resume stand out. I received 3x more interview calls after using JobMatcher."
             />
-            <TestimonialCard 
+            <TestimonialCard
               name="Emily Rodriguez"
               role="UX Designer"
               company="Creative Solutions"
@@ -155,14 +202,17 @@ const LandingPage: React.FC = () => {
       {/* CTA Section */}
       <section className="py-16 bg-primary text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Accelerate Your Career?</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Ready to Accelerate Your Career?
+          </h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto opacity-90">
-            Join thousands of professionals who have found their dream jobs with JobMatcher.
+            Join thousands of professionals who have found their dream jobs with
+            JobMatcher.
           </p>
-          <Button 
-            as={RouterLink} 
-            to="/sign-up" 
-            color="default" 
+          <Button
+            as={RouterLink}
+            to="/sign-up"
+            color="default"
             size="lg"
             variant="solid"
           >
